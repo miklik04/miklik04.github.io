@@ -21,18 +21,30 @@
             margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
         .digital-font { font-family: 'Share Tech Mono', monospace; }
+        
+        /* Stránkování / Sekce pro plynulý scroll */
         .view {
             display: none; width: 100%; height: 100%; flex-direction: column;
             align-items: center; justify-content: center; position: relative;
         }
         .active-view { display: flex; }
 
-        /* --- HLAVNÍ MENU --- */
+        /* --- HLAVNÍ MENU (Nyní posuvné samo o sobě) --- */
+        #menu-view {
+            justify-content: flex-start; /* Začíná nahoře */
+            overflow-y: auto; 
+            scroll-behavior: smooth;
+        }
+        .menu-section {
+            width: 100%; min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; flex-shrink: 0; position: relative;
+        }
+
         #menu-clock { font-size: 8rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); text-align: center; }
-        .menu-buttons { display: flex; gap: 20px; }
+        .menu-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 900px; }
         .menu-btn {
             background: transparent; border: 4px solid #ff0000; color: #ff0000;
-            width: 200px; height: 200px; font-size: 1.5rem; font-weight: bold;
+            width: 170px; height: 170px; font-size: 1.2rem; font-weight: bold;
             cursor: pointer; text-transform: uppercase;
             box-shadow: 0 0 15px rgba(255,0,0,0.3), inset 0 0 15px rgba(255,0,0,0.3);
             transition: all 0.2s ease;
@@ -41,7 +53,7 @@
 
         /* --- SOCIÁLNÍ IKONY V MENU --- */
         .social-links {
-            display: flex; gap: 25px; margin-top: 35px; align-items: center; justify-content: center;
+            display: flex; gap: 25px; margin-top: 25px; align-items: center; justify-content: center;
         }
         .social-icon-btn {
             width: 50px; height: 50px; border: 2px solid #ff0000; background: black;
@@ -49,11 +61,31 @@
             box-shadow: 0 0 10px rgba(255,0,0,0.2); transition: all 0.2s ease; cursor: pointer;
             padding: 10px; box-sizing: border-box;
         }
-        .social-icon-btn svg {
-            width: 100%; height: 100%; display: block;
-        }
+        .social-icon-btn svg { width: 100%; height: 100%; display: block; }
         .social-icon-btn:hover {
             background-color: rgba(255, 0, 0, 0.15); transform: scale(1.1); box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        /* --- ŠIPKA DOLŮ NA RANKING --- */
+        .ranking-scroll-trigger {
+            margin-top: 30px; text-align: center; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; transition: transform 0.2s;
+        }
+        .ranking-scroll-trigger:hover { transform: scale(1.05); }
+        .ranking-scroll-title {
+            color: #00ff00; font-size: 1.4rem; font-weight: bold; font-family: 'Share Tech Mono', monospace;
+            text-shadow: 0 0 10px rgba(0,255,0,0.5); letter-spacing: 1px;
+        }
+        .ranking-scroll-arrow {
+            width: 40px; height: 20px; fill: none; stroke: #00ff00; stroke-width: 4;
+            stroke-linecap: round; stroke-linejoin: round; margin-top: 5px;
+            filter: drop-shadow(0 0 8px rgba(0,255,0,0.6));
+            animation: bounceArrow 1.5s infinite;
+        }
+        @keyframes bounceArrow {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(6px); }
+            60% { transform: translateY(3px); }
         }
 
         /* --- SPOLEČNÉ HERNÍ STYLY --- */
@@ -69,7 +101,7 @@
         .text-icon { height: 50px; padding: 0 20px; border-radius: 25px; font-size: 1.2rem; font-weight: bold; }
         .circle-icon:hover, .text-icon:hover { background-color: rgba(255, 0, 0, 0.2); }
         
-        h1 { font-size: 4rem; margin: 20px 0 0 0; position: absolute; top: 20px; text-align: center; }
+        h1 { font-size: 4rem; margin: 20px 0 0 0; position: absolute; top: 20px; text-align: center; width: 100%; }
         .subtitle { font-size: 2rem; margin-bottom: 20px; color: #fff; text-align: center; }
         .game-center { display: flex; flex-direction: column; align-items: center; margin-right: 300px; }
         .target-time { color: #00ff00; font-size: 2.5rem; margin-bottom: 20px; text-align: center; }
@@ -79,15 +111,16 @@
         .action-btn {
             background-color: #00aa00; color: black; border: none; border-radius: 25px;
             padding: 15px 50px; font-size: 1.5rem; font-weight: bold; cursor: pointer;
-            margin-bottom: 10px; text-transform: uppercase; text-align: center;
+            margin-bottom: 10px; text-transform: uppercase; text-align: center; transition: all 0.2s;
         }
+        .action-btn:hover { transform: scale(1.05); }
         .action-btn.stop-mode { background-color: #ff0000; color: white; }
         .spacebar-hint { font-size: 1.2rem; margin-top: 10px; text-align: center; }
         .result-msg { margin-top: 20px; font-size: 1.5rem; height: 30px; text-align: center; }
 
         /* --- PRAVÝ PANEL --- */
         .right-panel {
-            position: absolute; right: 40px; top: 100px; width: 250px; border: 2px solid #ff0000;
+            position: absolute; right: 40px; top: 100px; width: 280px; border: 2px solid #ff0000;
             padding: 20px; display: flex; flex-direction: column; align-items: center;
             max-height: 80vh; overflow-y: auto; background-color: rgba(0,0,0,0.8);
         }
@@ -97,8 +130,15 @@
             padding: 5px; margin-top: 5px; width: 80%; font-family: inherit;
         }
         .players-list-container { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; }
-        .results-list { text-align: left; width: 100%; font-size: 0.9rem; line-height: 1.5; }
+        .results-list { text-align: left; width: 100%; font-size: 0.85rem; line-height: 1.4; }
         .results-list div { display: flex; justify-content: space-between; }
+
+        /* --- ŽEBŘÍČEK (DOLNÍ SEKCE MENU) --- */
+        .leaderboard-box {
+            width: 100%; max-width: 600px; border: 2px solid #00ff00; padding: 25px;
+            background-color: rgba(0,0,0,0.95); box-shadow: 0 0 25px rgba(0,255,0,0.3);
+            max-height: 65vh; overflow-y: auto; box-sizing: border-box; margin-top: 10px;
+        }
 
         /* --- OVERLAYS (MODALS & FULLSCREEN) --- */
         #rules-modal {
@@ -136,15 +176,12 @@
         /* MOBILNÍ ZOBRAZENÍ (RESPONSIVE DESIGN)     */
         /* ========================================= */
         @media (max-width: 900px) {
-            body { 
-                overflow-y: auto; height: auto; min-height: 100vh; 
-            }
-            .view { 
-                height: auto; min-height: 100vh; justify-content: flex-start; padding-bottom: 40px; 
-            }
+            body { overflow-y: auto; height: auto; min-height: 100vh; }
+            .view { height: auto; min-height: 100vh; justify-content: flex-start; padding-bottom: 40px; }
+            .menu-section { min-height: 100vh; padding: 20px 0; justify-content: flex-start; }
             #menu-clock { font-size: 5rem; margin-top: 40px; margin-bottom: 20px; }
-            .menu-buttons { flex-wrap: wrap; justify-content: center; max-width: 320px; gap: 15px; }
-            .menu-btn { width: 140px; height: 140px; font-size: 1.2rem; }
+            .menu-buttons { flex-wrap: wrap; justify-content: center; max-width: 320px; gap: 12px; }
+            .menu-btn { width: 140px; height: 140px; font-size: 1rem; }
             .top-bar { position: fixed; background: rgba(0,0,0,0.9); padding: 10px 20px; top: 0; left: 0; border-bottom: 1px solid #ff0000; }
             h1 { position: relative; top: 0; font-size: 2.5rem; margin-top: 90px; margin-bottom: 10px; width: 100%; }
             .subtitle { font-size: 1.3rem; margin-bottom: 15px; }
@@ -165,68 +202,75 @@
 </head>
 <body>
 
-    <!-- HLAVNÍ MENU -->
+    <!-- HLAVNÍ MENU S POSUVNÝM ŽEBŘÍČKEM -->
     <div id="menu-view" class="view active-view">
-        <div id="menu-clock" class="digital-font">22:22</div>
-        <div class="menu-buttons">
-            <button class="menu-btn" onclick="startGame('hit-the-time')">HIT<br>THE<br>TIME</button>
-            <button class="menu-btn" onclick="startGame('survival')">SURVIVAL<br>MODE</button>
-            <button class="menu-btn" onclick="startGame('impostor')">IMPOSTOR<br>MODE</button>
-            <button class="menu-btn" onclick="startGame('first-to-hit')">FIRST<br>TO<br>HIT</button>
-        </div>
         
-        <!-- SOCIÁLNÍ SÍTĚ (PŘESNÉ VKLAD Z TVÉHO CORELu) -->
-        <div class="social-links">
-            <!-- Instagram -->
-            <a href="https://instagram.com/hitthetimer" target="_blank" class="social-icon-btn" title="Instagram">
-                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 11855.25 11855.25">
-                    <defs>
-                        <style type="text/css">
-                            .str-ig {stroke:#ED282E;stroke-width:826.11;stroke-miterlimit:22.9256}
-                            .fil-none {fill:none}
-                            .fil-red {fill:#ED282E}
-                        </style>
-                    </defs>
-                    <g>
-                        <rect class="fil-none str-ig" x="413.05" y="413.05" width="11029.14" height="11029.14" rx="2297.74" ry="2297.74"/>
-                        <circle class="fil-none str-ig" cx="5930.13" cy="5938.42" r="2696.02"/>
-                        <circle class="fil-red" cx="9202.38" cy="2664.54" r="713.52"/>
-                    </g>
+        <!-- PRVNÍ OBRAZOVKA (Tlačítka) -->
+        <div class="menu-section">
+            <div id="menu-clock" class="digital-font">22:22</div>
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="startGame('hit-the-time')">HIT<br>THE<br>TIME</button>
+                <button class="menu-btn" onclick="startGame('survival')">SURVIVAL<br>MODE</button>
+                <button class="menu-btn" onclick="startGame('impostor')">IMPOSTOR<br>MODE</button>
+                <button class="menu-btn" onclick="startGame('first-to-hit')">FIRST<br>TO<br>HIT</button>
+                <button class="menu-btn" onclick="startGame('marathon')" style="border-color: #00ff00; color: #00ff00; box-shadow: 0 0 15px rgba(0,255,0,0.3), inset 0 0 15px rgba(0,255,0,0.3);">GLOBAL<br>MARATHON</button>
+            </div>
+            
+            <div class="social-links">
+                <a href="https://instagram.com/hitthetimer" target="_blank" class="social-icon-btn" title="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" viewBox="0 0 11855.25 11855.25">
+                        <defs><style>.str-ig {stroke:#ED282E;stroke-width:826.11;stroke-miterlimit:22.9256}.fil-none {fill:none}.fil-red {fill:#ED282E}</style></defs>
+                        <g>
+                            <rect class="fil-none str-ig" x="413.05" y="413.05" width="11029.14" height="11029.14" rx="2297.74" ry="2297.74"/>
+                            <circle class="fil-none str-ig" cx="5930.13" cy="5938.42" r="2696.02"/>
+                            <circle class="fil-red" cx="9202.38" cy="2664.54" r="713.52"/>
+                        </g>
+                    </svg>
+                </a>
+                <a href="https://reddit.com/r/hitthetimer" target="_blank" class="social-icon-btn" title="Reddit">
+                    <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" viewBox="0 0 18037.9 15039.07">
+                        <defs><style>.str-rd1 {stroke:#ED282E;stroke-width:699.71;stroke-miterlimit:22.9256}.str-rd0 {stroke:#ED282E;stroke-width:899.63;stroke-miterlimit:22.9256}.str-rd2 {stroke:#ED282E;stroke-width:899.63;stroke-linecap:round;stroke-miterlimit:22.9256}.fil-none {fill:none}.fil-red {fill:#ED282E}</style></defs>
+                        <g>
+                            <ellipse class="fil-none str-rd0" cx="9073.89" cy="9600.44" rx="7381.11" ry="4988.82"/>
+                            <polyline class="fil-none str-rd0" points="8754.78,4616.2 10094.99,643.92 13012.42,1460.8 "/>
+                            <circle class="fil-none str-rd1" cx="14576.31" cy="1978" r="1628.15"/>
+                            <circle class="fil-red" cx="11567.63" cy="8647.6" r="1212.19"/>
+                            <circle class="fil-red" cx="6342.53" cy="8647.61" r="1212.19"/>
+                            <path class="fil-none str-rd2" d="M6196.4 11657.88c1814.44,1237.49 3662.3,1237.49 5543.61,0"/>
+                            <path class="fil-none str-rd0" d="M14064.61 5924.81c2952.67,-2193.45 4858.79,2696.38 2387.79,3542.2"/>
+                            <path class="fil-none str-rd0" d="M3973.29 5863.75c-2952.67,-2193.45 -4858.79,2696.38 -2387.79,3542.2"/>
+                        </g>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Šipka pro sjetí dolů -->
+            <div class="ranking-scroll-trigger" onclick="document.getElementById('ranking-section').scrollIntoView({ behavior: 'smooth' })">
+                <div class="ranking-scroll-title">GLOBAL MARATHON RANKING</div>
+                <svg class="ranking-scroll-arrow" viewBox="0 0 24 24">
+                    <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
-            </a>
-            <!-- Reddit -->
-            <a href="https://reddit.com/r/hitthetimer" target="_blank" class="social-icon-btn" title="Reddit">
-                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 18037.9 15039.07">
-                    <defs>
-                        <style type="text/css">
-                            .str-rd1 {stroke:#ED282E;stroke-width:699.71;stroke-miterlimit:22.9256}
-                            .str-rd0 {stroke:#ED282E;stroke-width:899.63;stroke-miterlimit:22.9256}
-                            .str-rd2 {stroke:#ED282E;stroke-width:899.63;stroke-linecap:round;stroke-miterlimit:22.9256}
-                            .fil-none {fill:none}
-                            .fil-red {fill:#ED282E}
-                        </style>
-                    </defs>
-                    <g>
-                        <ellipse class="fil-none str-rd0" cx="9073.89" cy="9600.44" rx="7381.11" ry="4988.82"/>
-                        <polyline class="fil-none str-rd0" points="8754.78,4616.2 10094.99,643.92 13012.42,1460.8 "/>
-                        <circle class="fil-none str-rd1" cx="14576.31" cy="1978" r="1628.15"/>
-                        <circle class="fil-red" cx="11567.63" cy="8647.6" r="1212.19"/>
-                        <circle class="fil-red" cx="6342.53" cy="8647.61" r="1212.19"/>
-                        <path class="fil-none str-rd2" d="M6196.4 11657.88c1814.44,1237.49 3662.3,1237.49 5543.61,0"/>
-                        <path class="fil-none str-rd0" d="M14064.61 5924.81c2952.67,-2193.45 4858.79,2696.38 2387.79,3542.2"/>
-                        <path class="fil-none str-rd0" d="M3973.29 5863.75c-2952.67,-2193.45 -4858.79,2696.38 -2387.79,3542.2"/>
-                    </g>
-                </svg>
-            </a>
+            </div>
         </div>
+
+        <!-- DRUHÁ OBRAZOVKA (Žebříček) -->
+        <div id="ranking-section" class="menu-section" style="border-top: 1px solid #00ff00; background-color: #050000; padding: 40px 20px;">
+            <!-- Tlačítko zpět nahoru -->
+            <div style="position: absolute; top: 20px; right: 40px; border: 2px solid #ff0000; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 1.2rem; background: black; color: #ff0000; text-transform: uppercase;" onclick="document.getElementById('menu-view').scrollTo({ top: 0, behavior: 'smooth' })" onmouseover="this.style.backgroundColor='rgba(255,0,0,0.2)'" onmouseout="this.style.backgroundColor='black'">BACK UP</div>
+            
+            <h1 style="color: #00ff00; text-shadow: 0 0 15px rgba(0,255,0,0.5); position: static; margin: 0 0 10px 0;">GLOBAL RANKING</h1>
+            <div class="subtitle digital-font" style="font-size: 1.5rem; margin-bottom: 20px;">TOP 25 WORLDWIDE (MARATHON)</div>
+            
+            <div class="leaderboard-box results-list digital-font" id="main-global-leaderboard-container" style="font-size: 1.1rem;">
+                Loading global leaderboard...
+            </div>
+        </div>
+
     </div>
 
     <!-- HRA 1: HIT THE TIME -->
     <div id="hit-the-time-view" class="view">
-        <div class="top-bar">
-            <div class="circle-icon" onclick="showRules('htt')">i</div>
-            <div class="text-icon" onclick="backToMenu()">MENU</div>
-        </div>
+        <div class="top-bar"><div class="circle-icon" onclick="showRules('htt')">i</div><div class="text-icon" onclick="backToMenu()">MENU</div></div>
         <h1>HIT THE TIME</h1>
         <div class="game-center">
             <div class="target-time digital-font" id="htt-target-display">TARGET TIME: 0.00</div>
@@ -236,26 +280,16 @@
             <div id="htt-result-message" class="result-msg digital-font"></div>
         </div>
         <div class="right-panel">
-            <div class="panel-section">
-                <div>Number of players</div>
-                <input type="number" id="htt-num-players" value="2" min="1" max="10" onchange="updatePlayerInputs('htt')">
-            </div>
-            <div class="panel-section">
-                <div>Name of players</div>
-                <div id="htt-players-list" class="players-list-container"></div>
-            </div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;">
-                <div style="margin-bottom: 10px;">TOP 10</div>
-                <div class="results-list digital-font" id="htt-top10-container"></div>
-            </div>
+            <div class="panel-section"><div>Number of players</div><input type="number" id="htt-num-players" value="2" min="1" max="10" onchange="updatePlayerInputs('htt')"></div>
+            <div class="panel-section"><div>Name of players</div><div id="htt-players-list" class="players-list-container"></div></div>
+            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px;">TOP 10</div><div class="results-list digital-font" id="htt-top10-container"></div></div>
         </div>
     </div>
 
-    <!-- HRA 2: SURVIVAL MODE (MULTIPLAYER LOBBY) -->
+    <!-- HRA 2: SURVIVAL MODE -->
     <div id="survival-view" class="view">
         <div class="top-bar"><div class="circle-icon" onclick="showRules('srv')">i</div><div class="text-icon" onclick="backToMenu()">MENU</div></div>
         <h1>SURVIVAL MODE</h1>
-        
         <div class="game-center">
             <div class="subtitle digital-font" id="srv-subtitle">ONLINE MULTIPLAYER</div>
             <div class="target-time digital-font" id="srv-target-display">TARGET TIME: 0.00</div>
@@ -264,30 +298,13 @@
             <div class="spacebar-hint">WAITING FOR PLAYERS...</div>
             <div id="srv-result-message" class="result-msg digital-font"></div>
         </div>
-        
         <div class="right-panel">
-            <div class="panel-section">
-                <div>Your Name</div>
-                <input type="text" id="srv-my-name" value="Player1">
-            </div>
-            <div class="panel-section">
-                <button class="action-btn" style="padding: 10px; font-size: 1rem; width: 100%;" onclick="srvCreateRoom()">CREATE ROOM</button>
-            </div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;">
-                <div>Room Code</div>
-                <input type="text" id="srv-room-code-input" placeholder="e.g. ABCD" style="text-transform: uppercase;">
-                <button class="action-btn" style="padding: 10px; font-size: 1rem; margin-top:5px; background-color: #555; color: white; width: 100%;" onclick="srvJoinRoom()">JOIN ROOM</button>
-            </div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;">
-                <div style="margin-bottom: 10px; font-weight: bold;">ROOM: <span id="srv-display-room" style="color: #00ff00;">---</span></div>
-                <div class="players-list-container" id="srv-online-players-list"></div>
-            </div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;">
-                <div style="margin-bottom: 10px;">RESULTS</div>
-                <div class="results-list digital-font" id="srv-results-container"></div>
-            </div>
+            <div class="panel-section"><div>Your Name</div><input type="text" id="srv-my-name" value="Player1"></div>
+            <div class="panel-section"><button class="action-btn" style="padding: 10px; font-size: 1rem; width: 100%;" onclick="srvCreateRoom()">CREATE ROOM</button></div>
+            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div>Room Code</div><input type="text" id="srv-room-code-input" placeholder="e.g. ABCD" style="text-transform: uppercase;"><button class="action-btn" style="padding: 10px; font-size: 1rem; margin-top:5px; background-color: #555; color: white; width: 100%;" onclick="srvJoinRoom()">JOIN ROOM</button></div>
+            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px; font-weight: bold;">ROOM: <span id="srv-display-room" style="color: #00ff00;">---</span></div><div class="players-list-container" id="srv-online-players-list"></div></div>
+            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px;">RESULTS</div><div class="results-list digital-font" id="srv-results-container"></div></div>
         </div>
-
         <div id="srv-elimination-overlay" class="fullscreen-overlay">
             <h2 id="srv-elimination-text">PLAYER ELIMINATED!</h2>
             <div class="overlay-hint">Press SPACE or click the button below</div>
@@ -308,14 +325,8 @@
             <div id="imp-result-message" class="result-msg digital-font"></div>
         </div>
         <div class="right-panel" id="imp-right-panel">
-            <div class="panel-section">
-                <div>Number of players</div>
-                <input type="number" id="imp-num-players" value="3" min="3" max="10" onchange="updatePlayerInputs('imp')">
-            </div>
-            <div class="panel-section">
-                <div>Name of players</div>
-                <div id="imp-players-list" class="players-list-container"></div>
-            </div>
+            <div class="panel-section"><div>Number of players</div><input type="number" id="imp-num-players" value="3" min="3" max="10" onchange="updatePlayerInputs('imp')"></div>
+            <div class="panel-section"><div>Name of players</div><div id="imp-players-list" class="players-list-container"></div></div>
         </div>
         <div id="imp-reveal-overlay" class="fullscreen-overlay">
             <h2 id="imp-reveal-title" style="font-size: 3rem;">ONLY PLAYER1 CAN LOOK</h2>
@@ -347,23 +358,48 @@
             <div id="fth-result-message" class="result-msg digital-font"></div>
         </div>
         <div class="right-panel">
-            <div class="panel-section">
-                <div>Number of players</div>
-                <input type="number" id="fth-num-players" value="2" min="1" max="10" onchange="updatePlayerInputs('fth')">
-            </div>
-            <div class="panel-section">
-                <div>Name of players</div>
-                <div id="fth-players-list" class="players-list-container"></div>
-            </div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;">
-                <div style="margin-bottom: 10px;">CLOSEST ATTEMPTS</div>
-                <div class="results-list digital-font" id="fth-results-container"></div>
-            </div>
+            <div class="panel-section"><div>Number of players</div><input type="number" id="fth-num-players" value="2" min="1" max="10" onchange="updatePlayerInputs('fth')"></div>
+            <div class="panel-section"><div>Name of players</div><div id="fth-players-list" class="players-list-container"></div></div>
+            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px;">CLOSEST ATTEMPTS</div><div class="results-list digital-font" id="fth-results-container"></div></div>
         </div>
         <div id="fth-winner-overlay" class="fullscreen-overlay winner">
             <h2 id="fth-winner-text">PLAYER1 WINS!</h2>
             <div class="overlay-hint">EXACT HIT (0.00s DIFFERENCE)!</div>
             <button class="action-btn" style="background-color: #00aa00; color: black;" onclick="initFth()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <!-- HRA 5: MARATHON (GLOBAL LEADERBOARD) -->
+    <div id="marathon-view" class="view">
+        <div class="top-bar"><div class="circle-icon" onclick="showRules('mar')">i</div><div class="text-icon" onclick="backToMenu()">MENU</div></div>
+        <h1>GLOBAL MARATHON</h1>
+        <div class="game-center">
+            <div class="subtitle digital-font" id="mar-subtitle">ROUND 1 / 10</div>
+            <div class="target-time digital-font" id="mar-target-display">TARGET TIME: 0.00</div>
+            <div class="main-timer digital-font" id="mar-timer-display">00:00</div>
+            <button class="action-btn" id="mar-action-btn" onclick="marHandleAction()">START</button>
+            <div class="spacebar-hint">YOU CAN USE SPACEBAR</div>
+            <div id="mar-result-message" class="result-msg digital-font"></div>
+        </div>
+        <div class="right-panel">
+            <div class="panel-section">
+                <div>Player Name</div>
+                <input type="text" id="mar-player-name" value="Player1">
+            </div>
+            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;">
+                <div style="margin-bottom: 10px;">YOUR RUN</div>
+                <div class="results-list digital-font" id="mar-score-container"></div>
+            </div>
+        </div>
+        <!-- MARATHON WINNER OVERLAY S RANKINGEM -->
+        <div id="mar-winner-overlay" class="fullscreen-overlay winner" style="background-color: rgba(0,0,0,0.98);">
+            <h2 id="mar-winner-text">MARATHON FINISHED!</h2>
+            <div class="overlay-hint" id="mar-final-score-hint">Total error: 0.00s</div>
+            
+            <div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; justify-content: center;">
+                <button class="action-btn" style="background-color: #00aa00; color: black; margin-bottom: 0;" onclick="initMarathon()">PLAY AGAIN</button>
+                <button class="action-btn" style="background-color: transparent; color: #00ff00; border: 2px solid #00ff00; margin-bottom: 0;" onclick="goToGlobalRanking()">SEE RANKING</button>
+            </div>
         </div>
     </div>
 
@@ -379,7 +415,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
 
     <script>
-        // TVÁ FIREBASE KONFIGURACE
         const firebaseConfig = {
             apiKey: "AIzaSyD4CTj5rM751jOQQYwOTT8Li-3UxBgo3Cg",
             authDomain: "timergames.firebaseapp.com",
@@ -404,6 +439,23 @@
         }
         setInterval(updateMenuClock, 1000); updateMenuClock();
 
+        // Automatické načtení Top 25 žebříčku do dolní sekce menu
+        function initMainGlobalLeaderboard() {
+            db.ref('globalLeaderboard').orderByChild('absDiff').limitToFirst(25).on('value', snapshot => {
+                let html = '';
+                let rank = 1;
+                snapshot.forEach(childSnap => {
+                    let data = childSnap.val();
+                    let color = data.totalDiffMs > 0 ? '#ff5555' : (data.totalDiffMs < 0 ? '#55ff55' : '#00ff00');
+                    html += `<div style="padding: 6px 0; border-bottom: 1px dashed rgba(0,255,0,0.3);"><span>${rank}. ${data.name}</span><span style="color:${color}">${data.displayDiff}</span></div>`;
+                    rank++;
+                });
+                if (html === '') html = '<div><span>No scores yet</span><span>-</span></div>';
+                document.getElementById('main-global-leaderboard-container').innerHTML = html;
+            });
+        }
+        initMainGlobalLeaderboard();
+
         function startGame(gameId) {
             document.getElementById('menu-view').classList.remove('active-view');
             activeGame = gameId;
@@ -420,15 +472,30 @@
             } else if (gameId === 'first-to-hit') {
                 document.getElementById('first-to-hit-view').classList.add('active-view');
                 activeGame = 'fth'; updatePlayerInputs('fth'); initFth();
+            } else if (gameId === 'marathon') {
+                document.getElementById('marathon-view').classList.add('active-view');
+                activeGame = 'mar'; initMarathon();
             }
         }
 
         function backToMenu() {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-            document.getElementById('menu-view').classList.add('active-view');
+            const menuView = document.getElementById('menu-view');
+            menuView.classList.add('active-view');
+            menuView.scrollTo({ top: 0, behavior: 'instant' }); 
             document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
             activeGame = null;
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off();
+        }
+
+        // Nová funkce pro přímý skok na žebříček z obrazovky výsledků maratonu
+        function goToGlobalRanking() {
+            initMarathon(); // Zresetuje stav maratonu pro příště
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+            document.getElementById('menu-view').classList.add('active-view');
+            document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
+            activeGame = null;
+            document.getElementById('ranking-section').scrollIntoView({ behavior: 'smooth' });
         }
 
         function updatePlayerInputs(mode) {
@@ -456,17 +523,13 @@
             if (mode === 'htt' && activeGame === 'htt') {
                 const players = document.getElementsByClassName('htt-player-name');
                 if (httPlayerIdx >= players.length) httPlayerIdx = 0;
-                if (httGameState === 'waiting' || httGameState === 'finished') {
-                    httResetUI();
-                }
+                if (httGameState === 'waiting' || httGameState === 'finished') httResetUI();
             } else if (mode === 'fth' && activeGame === 'fth') {
                 const inputs = document.getElementsByClassName('fth-player-name');
                 fthPlayers = [];
                 for(let i=0; i<inputs.length; i++) fthPlayers.push(inputs[i].value || `Player${i+1}`);
                 if (fthCurrentIdx >= fthPlayers.length) fthCurrentIdx = 0;
-                if (fthGameState === 'waiting') {
-                    fthResetUI();
-                }
+                if (fthGameState === 'waiting') fthResetUI();
             } else if (mode === 'imp' && activeGame === 'imp') {
                 const inputs = document.getElementsByClassName('imp-player-name');
                 impPlayers = [];
@@ -477,10 +540,11 @@
         function showRules(mode) {
             const modal = document.getElementById('rules-modal');
             const text = document.getElementById('rules-text');
-            if(mode === 'htt') text.innerHTML = `Stop the timer exactly at the given <strong>TARGET TIME</strong>.<br>The timer will be hidden. Guess the moment blind!<br>The player with the smallest difference wins.`;
-            else if (mode === 'srv') text.innerHTML = `<strong>SURVIVAL MODE (MULTIPLAYER)</strong><br>Create a room or join a friend's room. All players share the same target time. The player with the worst deviation is <strong>ELIMINATED</strong>.`;
-            else if (mode === 'imp') text.innerHTML = `<strong>IMPOSTOR MODE</strong><br>One player is randomly chosen as the Impostor. They don't know the exact time!<br>After everyone plays, you must <strong>VOTE</strong> to find the Impostor.`;
-            else if (mode === 'fth') text.innerHTML = `<strong>FIRST TO HIT</strong><br>Keep taking turns until someone hits the Target Time <strong>EXACTLY</strong> (0.00s difference). First to do it wins the game!`;
+            if(mode === 'htt') text.innerHTML = `Stop the timer exactly at the given <strong>TARGET TIME</strong> (up to 15s).<br>The timer will be hidden. Guess the moment blind!<br>The player with the smallest difference wins.`;
+            else if (mode === 'srv') text.innerHTML = `<strong>SURVIVAL MODE (MULTIPLAYER)</strong><br>Create a room or join a friend's room. Random target times up to 15s. The player with the worst deviation is <strong>ELIMINATED</strong>.`;
+            else if (mode === 'imp') text.innerHTML = `<strong>IMPOSTOR MODE</strong><br>One player is randomly chosen as the Impostor. Target time up to 15s!<br>After everyone plays, you must <strong>VOTE</strong> to find the Impostor.`;
+            else if (mode === 'fth') text.innerHTML = `<strong>FIRST TO HIT</strong><br>Keep taking turns until someone hits the Target Time (up to 15s) <strong>EXACTLY</strong> (0.00s difference). First to do it wins!`;
+            else if (mode === 'mar') text.innerHTML = `<strong>GLOBAL MARATHON</strong><br>Play 10 consecutive rounds with random target times (up to 15s).<br>Your total error is <strong>sent to the global ranking</strong>. Compete with players worldwide!`;
             modal.style.display = 'block';
         }
         function hideRules() { document.getElementById('rules-modal').style.display = 'none'; }
@@ -490,7 +554,7 @@
         // ==========================================
         let httGameState = 'waiting', httTargetMs = 0, httStart = 0, httPlayerIdx = 0, httLeaderboard = [];
         function initHtt() { httGameState = 'waiting'; httPlayerIdx = 0; httLeaderboard = []; httUpdateLeaderboard(); httNewTarget(); httResetUI(); }
-        function httNewTarget() { httTargetMs = Math.floor(Math.random() * 4000) + 2000; document.getElementById('htt-target-display').textContent = `TARGET TIME: ${(httTargetMs / 1000).toFixed(2)}`; }
+        function httNewTarget() { httTargetMs = Math.floor(Math.random() * 14000) + 1000; document.getElementById('htt-target-display').textContent = `TARGET TIME: ${(httTargetMs / 1000).toFixed(2)}`; }
         function httResetUI() {
             document.getElementById('htt-timer-display').textContent = '00:00'; document.getElementById('htt-timer-display').classList.remove('hide-timer'); document.getElementById('htt-result-message').textContent = '';
             const players = document.getElementsByClassName('htt-player-name'); let pName = players.length > httPlayerIdx ? players[httPlayerIdx].value : "Player";
@@ -526,13 +590,7 @@
         // ==========================================
         // 2. SURVIVAL MODE (MULTIPLAYER)
         // ==========================================
-        let srvRoomId = null;
-        let srvMyName = "";
-        let srvIsHost = false;
-        let srvGameStateLocal = 'idle';
-        let srvStartLocal = 0;
-        let srvRoomData = null;
-
+        let srvRoomId = null, srvMyName = "", srvIsHost = false, srvGameStateLocal = 'idle', srvStartLocal = 0, srvRoomData = null;
         function initSrv() {
             document.getElementById('srv-online-players-list').innerHTML = '';
             document.getElementById('srv-display-room').textContent = '---';
@@ -540,55 +598,35 @@
             document.getElementById('srv-result-message').textContent = '';
             document.getElementById('srv-timer-display').textContent = '00:00';
             document.getElementById('srv-timer-display').classList.remove('hide-timer');
-            
             const btn = document.getElementById('srv-action-btn');
-            btn.textContent = 'CREATE OR JOIN ROOM';
-            btn.classList.remove('stop-mode');
+            btn.textContent = 'CREATE OR JOIN ROOM'; btn.classList.remove('stop-mode');
             document.querySelector('#survival-view .spacebar-hint').textContent = 'WAITING FOR PLAYERS...';
-            
-            srvRoomId = null;
-            srvGameStateLocal = 'idle';
+            srvRoomId = null; srvGameStateLocal = 'idle';
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off(); 
         }
-
         function srvCreateRoom() {
             srvMyName = document.getElementById('srv-my-name').value || "Host";
             srvRoomId = Math.random().toString(36).substring(2, 6).toUpperCase();
             srvIsHost = true;
-
-            db.ref('rooms/' + srvRoomId).set({
-                state: 'lobby',
-                host: srvMyName,
-                players: { [srvMyName]: true },
-                round: 1
-            });
-
+            db.ref('rooms/' + srvRoomId).set({ state: 'lobby', host: srvMyName, players: { [srvMyName]: true }, round: 1 });
             document.getElementById('srv-display-room').textContent = srvRoomId;
             document.getElementById('srv-display-room').style.color = '#00ff00';
             srvListenToRoom();
         }
-
         function srvJoinRoom() {
             srvMyName = document.getElementById('srv-my-name').value || "Guest";
             const code = document.getElementById('srv-room-code-input').value.toUpperCase();
             if (!code) return alert("Enter a room code!");
-
             db.ref('rooms/' + code).once('value').then(snapshot => {
                 if (snapshot.exists()) {
-                    srvRoomId = code;
-                    srvIsHost = false;
-                    
+                    srvRoomId = code; srvIsHost = false;
                     db.ref('rooms/' + srvRoomId + '/players').update({ [srvMyName]: true });
-                    
                     document.getElementById('srv-display-room').textContent = srvRoomId;
                     document.getElementById('srv-display-room').style.color = '#00ff00';
                     srvListenToRoom();
-                } else {
-                    alert("Room not found!");
-                }
+                } else { alert("Room not found!"); }
             }).catch(e => alert("Error: " + e.message));
         }
-
         function srvListenToRoom() {
             db.ref('rooms/' + srvRoomId).on('value', snapshot => {
                 srvRoomData = snapshot.val();
@@ -596,235 +634,134 @@
                 srvUpdateUI();
             });
         }
-
         function srvUpdateUI() {
             if (!srvRoomData) return;
-
             const playersContainer = document.getElementById('srv-online-players-list');
             if (playersContainer) {
                 playersContainer.innerHTML = '';
                 let playersObj = srvRoomData.players || {};
-                let activeNames = Object.keys(playersObj);
-
-                activeNames.forEach(p => {
+                Object.keys(playersObj).forEach(p => {
                     let color = (p === srvMyName) ? '#ffffff' : '#00aa00';
                     playersContainer.innerHTML += `<div style="color: ${color}; font-size: 1.2rem; margin-top: 5px;">⬤ ${p}</div>`;
                 });
             }
-
             const resContainer = document.getElementById('srv-results-container');
-            if (resContainer) {
+            if (resContainer && srvRoomData.results) {
                 let resHtml = '';
-                if (srvRoomData.results) {
-                    Object.keys(srvRoomData.results).forEach((pName) => {
-                        let res = srvRoomData.results[pName];
-                        let color = res.diffMs > 0 ? '#ff5555' : '#55ff55';
-                        resHtml += `<div><span>${pName}</span><span style="color:${color}">${res.displayDiff}</span></div>`;
-                    });
-                }
+                Object.keys(srvRoomData.results).forEach((pName) => {
+                    let res = srvRoomData.results[pName];
+                    let color = res.diffMs > 0 ? '#ff5555' : '#55ff55';
+                    resHtml += `<div><span>${pName}</span><span style="color:${color}">${res.displayDiff}</span></div>`;
+                });
                 resContainer.innerHTML = resHtml;
             }
-
             const btn = document.getElementById('srv-action-btn');
             const hint = document.querySelector('#survival-view .spacebar-hint');
             const subtitle = document.getElementById('srv-subtitle');
             const targetDisp = document.getElementById('srv-target-display');
-
             let playersObj = srvRoomData.players || {};
             let activeNames = Object.keys(playersObj);
 
             if (srvRoomData.state === 'lobby') {
                 document.getElementById('srv-elimination-overlay').style.display = 'none';
-                subtitle.textContent = "WAITING IN LOBBY";
-                targetDisp.textContent = "TARGET TIME: 0.00";
-                
-                if (srvIsHost) {
-                    btn.textContent = "START GAME";
-                    btn.style.backgroundColor = '#00aa00';
-                    hint.textContent = `WAITING FOR PLAYERS (${activeNames.length})`;
-                } else {
-                    btn.textContent = "WAITING FOR HOST";
-                    btn.style.backgroundColor = '#555';
-                    hint.textContent = "HOST WILL START THE GAME";
-                }
-            } 
-            else if (srvRoomData.state === 'playing') {
+                subtitle.textContent = "WAITING IN LOBBY"; targetDisp.textContent = "TARGET TIME: 0.00";
+                if (srvIsHost) { btn.textContent = "START GAME"; btn.style.backgroundColor = '#00aa00'; hint.textContent = `WAITING FOR PLAYERS (${activeNames.length})`; }
+                else { btn.textContent = "WAITING FOR HOST"; btn.style.backgroundColor = '#555'; hint.textContent = "HOST WILL START THE GAME"; }
+            } else if (srvRoomData.state === 'playing') {
                 document.getElementById('srv-elimination-overlay').style.display = 'none';
                 subtitle.textContent = srvRoomData.tieBreaker ? "TIE-BREAKER" : `ROUND ${srvRoomData.round}`;
                 targetDisp.textContent = `TARGET TIME: ${(srvRoomData.targetMs / 1000).toFixed(2)}`;
-                
                 let queue = srvRoomData.queue || [];
                 if (queue.length > 0) {
                     let currentPlayer = queue[0];
                     subtitle.textContent += ` - ${currentPlayer.toUpperCase()}'S TURN`;
-                    
-                    if (currentPlayer === srvMyName) {
-                        if (srvGameStateLocal === 'idle') {
-                            btn.textContent = `START (${srvMyName})`;
-                            btn.style.backgroundColor = '#00aa00';
-                            btn.classList.remove('stop-mode');
-                            hint.textContent = "YOUR TURN! PRESS SPACEBAR";
-                        }
-                    } else {
-                        btn.textContent = `WAITING FOR ${currentPlayer.toUpperCase()}`;
-                        btn.style.backgroundColor = '#555';
-                        btn.classList.remove('stop-mode');
-                        hint.textContent = "WATCHING...";
+                    if (currentPlayer === srvMyName && srvGameStateLocal === 'idle') {
+                        btn.textContent = `START (${srvMyName})`; btn.style.backgroundColor = '#00aa00'; btn.classList.remove('stop-mode'); hint.textContent = "YOUR TURN! PRESS SPACEBAR";
+                    } else if (currentPlayer !== srvMyName) {
+                        btn.textContent = `WAITING FOR ${currentPlayer.toUpperCase()}`; btn.style.backgroundColor = '#555'; btn.classList.remove('stop-mode'); hint.textContent = "WATCHING...";
                     }
-                } else {
-                    if (srvIsHost) {
-                        btn.textContent = "EVALUATING...";
-                        srvHostEvaluateRound();
-                    } else {
-                        btn.textContent = "WAITING FOR RESULTS...";
-                        btn.style.backgroundColor = '#555';
-                    }
-                }
-            }
-            else if (srvRoomData.state === 'evaluating') {
-                if (srvRoomData.winner) {
-                    srvShowOverlay(`${srvRoomData.winner.toUpperCase()} WINS!`, `SURVIVOR!`, true);
-                } else if (srvRoomData.tieBreaker) {
-                    srvShowOverlay(`TIE-BREAKER!`, `${srvRoomData.queue.join(' & ')}`, false);
-                } else {
-                    srvShowOverlay(`${srvRoomData.eliminatedLast.toUpperCase()}`, `ELIMINATED!`, false);
-                }
+                } else if (srvIsHost) { btn.textContent = "EVALUATING..."; srvHostEvaluateRound(); }
+            } else if (srvRoomData.state === 'evaluating') {
+                if (srvRoomData.winner) srvShowOverlay(`${srvRoomData.winner.toUpperCase()} WINS!`, `SURVIVOR!`, true);
+                else if (srvRoomData.tieBreaker) srvShowOverlay(`TIE-BREAKER!`, `${srvRoomData.queue.join(' & ')}`, false);
+                else srvShowOverlay(`${srvRoomData.eliminatedLast.toUpperCase()}`, `ELIMINATED!`, false);
             }
         }
-
         function srvHandleAction() {
             if (!srvRoomId) return alert("Create or Join a room first!");
-            
             if (srvRoomData.state === 'lobby' && srvIsHost) {
                 let players = Object.keys(srvRoomData.players || {});
                 if (players.length < 2) return alert("Need at least 2 players!");
                 srvHostStartRound(players, false);
-            } 
-            else if (srvRoomData.state === 'playing') {
+            } else if (srvRoomData.state === 'playing') {
                 let queue = srvRoomData.queue || [];
                 if (queue[0] === srvMyName) {
                     if (srvGameStateLocal === 'idle') {
-                        srvGameStateLocal = 'running';
-                        srvStartLocal = Date.now();
+                        srvGameStateLocal = 'running'; srvStartLocal = Date.now();
                         document.getElementById('srv-timer-display').classList.add('hide-timer');
-                        const btn = document.getElementById('srv-action-btn');
-                        btn.textContent = 'STOP';
-                        btn.style.backgroundColor = '#ff0000';
+                        const btn = document.getElementById('srv-action-btn'); btn.textContent = 'STOP'; btn.style.backgroundColor = '#ff0000';
                     } else if (srvGameStateLocal === 'running') {
-                        const elapsedMs = Date.now() - srvStartLocal;
-                        srvGameStateLocal = 'idle';
-                        
+                        const elapsedMs = Date.now() - srvStartLocal; srvGameStateLocal = 'idle';
                         document.getElementById('srv-timer-display').classList.remove('hide-timer');
                         document.getElementById('srv-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
-                        
                         const diffMs = elapsedMs - srvRoomData.targetMs;
                         const diffSec = (diffMs / 1000).toFixed(2);
                         let sign = diffMs > 0 ? '+' : '';
                         document.getElementById('srv-result-message').textContent = `DIFFERENCE: ${sign}${diffSec}s`;
-                        
-                        let newQueue = [...queue];
-                        newQueue.shift(); 
-                        
-                        db.ref('rooms/' + srvRoomId).update({
-                            queue: newQueue,
-                            [`results/${srvMyName}`]: { diffMs: diffMs, absDiff: Math.abs(diffMs), displayDiff: `${sign}${diffSec}` }
-                        });
+                        let newQueue = [...queue]; newQueue.shift();
+                        db.ref('rooms/' + srvRoomId).update({ queue: newQueue, [`results/${srvMyName}`]: { diffMs: diffMs, absDiff: Math.abs(diffMs), displayDiff: `${sign}${diffSec}` } });
                     }
                 }
             }
         }
-
         function srvHostStartRound(playersToPlay, isTie) {
-            let targetMs = isTie ? srvRoomData.targetMs : (Math.floor(Math.random() * 4000) + 2000);
-            
-            db.ref('rooms/' + srvRoomId).update({
-                state: 'playing',
-                targetMs: targetMs,
-                queue: playersToPlay,
-                results: null,
-                tieBreaker: isTie
-            });
+            let targetMs = isTie ? srvRoomData.targetMs : (Math.floor(Math.random() * 14000) + 1000);
+            db.ref('rooms/' + srvRoomId).update({ state: 'playing', targetMs: targetMs, queue: playersToPlay, results: null, tieBreaker: isTie });
         }
-
         function srvHostEvaluateRound() {
             if (!srvIsHost) return;
-            
             let results = srvRoomData.results || {};
             let resultArr = Object.keys(results).map(name => ({ name, ...results[name] }));
-            
             let maxDiff = -1;
             resultArr.forEach(r => { if (r.absDiff > maxDiff) maxDiff = r.absDiff; });
-            
             let worstPlayers = resultArr.filter(r => r.absDiff === maxDiff).map(r => r.name);
-            
             if (worstPlayers.length > 1) {
                 db.ref('rooms/' + srvRoomId).update({ state: 'evaluating', tieBreaker: true, queue: worstPlayers });
             } else {
                 let eliminatedName = worstPlayers[0];
                 let currentPlayers = Object.keys(srvRoomData.players || {});
                 let newActive = currentPlayers.filter(p => p !== eliminatedName);
-                
                 if (newActive.length === 1) {
                     db.ref('rooms/' + srvRoomId).update({ state: 'evaluating', tieBreaker: false, winner: newActive[0], eliminatedLast: eliminatedName });
                 } else {
-                    let newPlayersObj = {};
-                    newActive.forEach(p => newPlayersObj[p] = true);
-                    
-                    db.ref('rooms/' + srvRoomId).update({ 
-                        state: 'evaluating', 
-                        tieBreaker: false, 
-                        eliminatedLast: eliminatedName, 
-                        players: newPlayersObj,
-                        round: srvRoomData.round + 1 
-                    });
+                    let newPlayersObj = {}; newActive.forEach(p => newPlayersObj[p] = true);
+                    db.ref('rooms/' + srvRoomId).update({ state: 'evaluating', tieBreaker: false, eliminatedLast: eliminatedName, players: newPlayersObj, round: srvRoomData.round + 1 });
                 }
             }
         }
-
         function srvShowOverlay(mainText, subText, isWinner) {
             const overlay = document.getElementById('srv-elimination-overlay');
             document.getElementById('srv-elimination-text').innerHTML = `${mainText}<br>${subText}`;
-            const btn = document.getElementById('srv-continue-btn');
-            overlay.style.display = 'flex';
-            
-            if(isWinner) { 
-                overlay.classList.add('winner'); 
-                btn.textContent = srvIsHost ? 'RESTART GAME' : 'WAITING FOR HOST'; 
-                btn.style.backgroundColor = srvIsHost ? '#00aa00' : '#555'; 
-            } else { 
-                overlay.classList.remove('winner'); 
-                btn.textContent = srvIsHost ? 'START NEXT PHASE' : 'WAITING FOR HOST'; 
-                btn.style.backgroundColor = srvIsHost ? '#ff0000' : '#555'; 
-            }
+            const btn = document.getElementById('srv-continue-btn'); overlay.style.display = 'flex';
+            if(isWinner) { overlay.classList.add('winner'); btn.textContent = srvIsHost ? 'RESTART GAME' : 'WAITING FOR HOST'; btn.style.backgroundColor = srvIsHost ? '#00aa00' : '#555'; }
+            else { overlay.classList.remove('winner'); btn.textContent = srvIsHost ? 'START NEXT PHASE' : 'WAITING FOR HOST'; btn.style.backgroundColor = srvIsHost ? '#ff0000' : '#555'; }
             btn.style.color = (srvIsHost || isWinner) ? 'black' : 'white';
         }
-
         function srvDismissOverlay() {
             if (!srvIsHost) return alert("Only the HOST can continue the game!");
-            
             if (srvRoomData.winner) {
                 db.ref('rooms/' + srvRoomId).once('value').then(snapshot => {
                     let data = snapshot.val();
-                    let all = data.allPlayers || data.players;
-                    db.ref('rooms/' + srvRoomId).update({
-                        state: 'lobby',
-                        players: all,
-                        round: 1, winner: null, tieBreaker: false, results: null
-                    });
+                    db.ref('rooms/' + srvRoomId).update({ state: 'lobby', players: data.allPlayers || data.players, round: 1, winner: null, tieBreaker: false, results: null });
                 });
-            } else if (srvRoomData.tieBreaker) {
-                srvHostStartRound(srvRoomData.queue, true);
-            } else {
-                let currentActive = Object.keys(srvRoomData.players || {});
-                srvHostStartRound(currentActive, false);
-            }
+            } else if (srvRoomData.tieBreaker) { srvHostStartRound(srvRoomData.queue, true); }
+            else { srvHostStartRound(Object.keys(srvRoomData.players || {}), false); }
         }
 
         // ==========================================
         // 3. IMPOSTOR MODE
         // ==========================================
-        let impGameState = 'setup', impPlayers = [], impImpostorIdx = -1, impTargetMs = 0;
-        let impRangeMin = 0, impRangeMax = 0, impCurrentPlayerIdx = 0, impCurrentVoterIdx = 0, impStart = 0, impVotes = {};
+        let impGameState = 'setup', impPlayers = [], impImpostorIdx = -1, impTargetMs = 0, impRangeMin = 0, impRangeMax = 0, impCurrentPlayerIdx = 0, impCurrentVoterIdx = 0, impStart = 0, impVotes = {};
         function initImp() {
             impGameState = 'setup'; document.getElementById('imp-result-overlay').style.display = 'none'; document.getElementById('imp-right-panel').style.display = 'flex';
             document.getElementById('imp-subtitle').textContent = `SETUP GAME`; document.getElementById('imp-target-display').textContent = `TARGET TIME: ???`;
@@ -838,9 +775,9 @@
                 for(let i=0; i<inputs.length; i++) impPlayers.push(inputs[i].value || `Player${i+1}`);
                 if(impPlayers.length < 3) return;
                 document.getElementById('imp-right-panel').style.display = 'none';
-                impTargetMs = Math.floor(Math.random() * 4000) + 2000; impImpostorIdx = Math.floor(Math.random() * impPlayers.length);
-                let offsetMin = Math.floor(Math.random() * 1000) + 1000; let offsetMax = Math.floor(Math.random() * 1000) + 1000;
-                impRangeMin = Math.max(0, impTargetMs - offsetMin); impRangeMax = impTargetMs + offsetMax;
+                impTargetMs = Math.floor(Math.random() * 14000) + 1000; impImpostorIdx = Math.floor(Math.random() * impPlayers.length);
+                impRangeMin = Math.max(0, impTargetMs - (Math.floor(Math.random() * 2000) + 1000));
+                impRangeMax = Math.min(15000, impTargetMs + (Math.floor(Math.random() * 2000) + 1000));
                 impCurrentPlayerIdx = 0; impShowRevealScreen();
             } else if (impGameState === 'playing_waiting') {
                 impGameState = 'playing_running'; impStart = Date.now(); document.getElementById('imp-timer-display').classList.add('hide-timer');
@@ -851,12 +788,12 @@
                 document.getElementById('imp-result-message').textContent = `TIME RECORDED!`;
                 const btn = document.getElementById('imp-action-btn'); btn.textContent = (impCurrentPlayerIdx < impPlayers.length - 1) ? 'NEXT PLAYER' : 'GO TO VOTING'; btn.classList.remove('stop-mode');
             } else if (impGameState === 'playing_finished') {
-                impCurrentPlayerIdx++; if (impCurrentPlayerIdx >= impPlayers.length) { impStartVotingPhase(); } else { impSetupNextTurn(); }
+                impCurrentPlayerIdx++; if (impCurrentPlayerIdx >= impPlayers.length) impStartVotingPhase(); else impSetupNextTurn();
             }
         }
         let impRevealState = 'hidden';
         function impShowRevealScreen() {
-            impGameState = 'revealing'; impRevealState = 'hidden'; const overlay = document.getElementById('imp-reveal-overlay'); overlay.style.display = 'flex';
+            impGameState = 'revealing'; impRevealState = 'hidden'; document.getElementById('imp-reveal-overlay').style.display = 'flex';
             const pName = impPlayers[impCurrentPlayerIdx]; document.getElementById('imp-reveal-title').textContent = `ONLY ${pName.toUpperCase()} CAN LOOK`;
             document.getElementById('imp-reveal-info').textContent = `Make sure nobody else is watching the screen!`;
             const btn = document.getElementById('imp-reveal-btn'); btn.textContent = 'REVEAL SECRET'; btn.style.backgroundColor = '#555';
@@ -899,9 +836,9 @@
         }
         function impResolveGame() {
             impGameState = 'result'; document.getElementById('imp-voting-overlay').style.display = 'none';
-            const actualImpostor = impPlayers[impImpostorIdx]; let maxVotes = -1; let accused = [];
-            for(let p in impVotes) { if(impVotes[p] > maxVotes) { maxVotes = impVotes[p]; accused = [p]; } else if (impVotes[p] === maxVotes) { accused.push(p); } }
-            const overlay = document.getElementById('imp-result-overlay'); const title = document.getElementById('imp-result-title'); const info = document.getElementById('imp-result-info');
+            const actualImpostor = impPlayers[impImpostorIdx]; let maxVotes = -1, accused = [];
+            for(let p in impVotes) { if(impVotes[p] > maxVotes) { maxVotes = impVotes[p]; accused = [p]; } else if (impVotes[p] === maxVotes) accused.push(p); }
+            const overlay = document.getElementById('imp-result-overlay'), title = document.getElementById('imp-result-title'), info = document.getElementById('imp-result-info');
             title.textContent = `IMPOSTOR WAS ${actualImpostor.toUpperCase()}!`;
             let resultText = `Votes: <br>`; for(let p in impVotes) { if(impVotes[p] > 0) resultText += `${p} got ${impVotes[p]} votes.<br>`; }
             if(accused.includes(actualImpostor)) { resultText += `<br><span style="color:#00ff00;">Crewmates guessed right!</span>`; overlay.classList.add('winner'); } 
@@ -912,104 +849,147 @@
         // ==========================================
         // 4. FIRST TO HIT
         // ==========================================
-        let fthGameState = 'waiting', fthTargetMs = 0, fthStart = 0, fthPlayers = [], fthCurrentIdx = 0, fthBestAttempts = [];
-        let fthAttemptsCount = {};
-
+        let fthGameState = 'waiting', fthTargetMs = 0, fthStart = 0, fthPlayers = [], fthCurrentIdx = 0, fthBestAttempts = [], fthAttemptsCount = {};
         function initFth() {
             const inputs = document.getElementsByClassName('fth-player-name'); fthPlayers = [];
             for(let i=0; i<inputs.length; i++) fthPlayers.push(inputs[i].value || `Player${i+1}`);
             if(fthPlayers.length < 1) return;
-            
-            fthCurrentIdx = 0; 
-            fthBestAttempts = []; 
-            fthTargetMs = Math.floor(Math.random() * 4000) + 2000;
-            fthAttemptsCount = {};
+            fthCurrentIdx = 0; fthBestAttempts = []; fthTargetMs = Math.floor(Math.random() * 14000) + 1000; fthAttemptsCount = {};
             fthPlayers.forEach(p => fthAttemptsCount[p] = 0);
-            
             document.getElementById('fth-target-display').textContent = `TARGET TIME: ${(fthTargetMs / 1000).toFixed(2)}`;
-            document.getElementById('fth-winner-overlay').style.display = 'none'; 
-            fthUpdateRightPanel(); 
-            fthResetUI();
+            document.getElementById('fth-winner-overlay').style.display = 'none'; fthUpdateRightPanel(); fthResetUI();
         }
-
         function fthResetUI() {
-            document.getElementById('fth-timer-display').textContent = '00:00'; 
-            document.getElementById('fth-timer-display').classList.remove('hide-timer'); 
-            document.getElementById('fth-result-message').textContent = '';
-            
-            const pName = fthPlayers[fthCurrentIdx]; 
-            const attemptNum = (fthAttemptsCount[pName] || 0) + 1;
+            document.getElementById('fth-timer-display').textContent = '00:00'; document.getElementById('fth-timer-display').classList.remove('hide-timer'); document.getElementById('fth-result-message').textContent = '';
+            const pName = fthPlayers[fthCurrentIdx], attemptNum = (fthAttemptsCount[pName] || 0) + 1;
             document.getElementById('fth-subtitle').textContent = `TURN: ${pName.toUpperCase()} (ATTEMPT ${attemptNum})`;
-            
-            const btn = document.getElementById('fth-action-btn'); 
-            btn.textContent = `START (${pName})`; 
-            btn.classList.remove('stop-mode'); 
-            fthGameState = 'waiting';
+            const btn = document.getElementById('fth-action-btn'); btn.textContent = `START (${pName})`; btn.classList.remove('stop-mode'); fthGameState = 'waiting';
         }
-
         function fthHandleAction() {
-            if (document.getElementById('rules-modal').style.display === 'block') return;
-            if (fthGameState === 'message') return;
-            
+            if (document.getElementById('rules-modal').style.display === 'block' || fthGameState === 'message') return;
             if (fthGameState === 'waiting') {
-                fthGameState = 'running'; 
-                fthStart = Date.now(); 
-                document.getElementById('fth-timer-display').classList.add('hide-timer');
-                const btn = document.getElementById('fth-action-btn'); 
-                btn.textContent = 'STOP'; 
-                btn.classList.add('stop-mode');
+                fthGameState = 'running'; fthStart = Date.now(); document.getElementById('fth-timer-display').classList.add('hide-timer');
+                const btn = document.getElementById('fth-action-btn'); btn.textContent = 'STOP'; btn.classList.add('stop-mode');
             } else if (fthGameState === 'running') {
-                const elapsedMs = Date.now() - fthStart; 
-                fthGameState = 'finished';
-                
-                document.getElementById('fth-timer-display').classList.remove('hide-timer'); 
-                document.getElementById('fth-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
-                
+                const elapsedMs = Date.now() - fthStart; fthGameState = 'finished';
+                document.getElementById('fth-timer-display').classList.remove('hide-timer'); document.getElementById('fth-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
                 let diffMs = elapsedMs - fthTargetMs;
-                
-                // OPRAVA: Pokud je odchylka v rozmezí do 15 milisekund, považujeme to za přesnou trefu (0.00s)
-                if (Math.abs(diffMs) <= 15) {
-                    diffMs = 0;
-                }
-
-                const diffSec = (diffMs / 1000).toFixed(2); 
-                let sign = diffMs > 0 ? '+' : '';
+                if (Math.abs(diffMs) <= 15) diffMs = 0;
+                const diffSec = (diffMs / 1000).toFixed(2); let sign = diffMs > 0 ? '+' : '';
                 document.getElementById('fth-result-message').textContent = `DIFFERENCE: ${sign}${diffSec}s`;
-                
-                const pName = fthPlayers[fthCurrentIdx]; 
-                fthAttemptsCount[pName] = (fthAttemptsCount[pName] || 0) + 1;
+                const pName = fthPlayers[fthCurrentIdx]; fthAttemptsCount[pName] = (fthAttemptsCount[pName] || 0) + 1;
                 fthBestAttempts.push({ name: pName, diffMs: diffMs, absDiff: Math.abs(diffMs), displayDiff: `${sign}${diffSec}` });
-                
                 fthUpdateRightPanel();
-                
                 if (diffSec === "0.00" || diffSec === "-0.00" || diffMs === 0) {
-                    fthGameState = 'message'; 
-                    document.getElementById('fth-winner-text').textContent = `${pName.toUpperCase()} WINS!`; 
+                    fthGameState = 'message'; document.getElementById('fth-winner-text').textContent = `${pName.toUpperCase()} WINS!`;
                     document.querySelector('#fth-winner-overlay .overlay-hint').innerHTML = `EXACT HIT (0.00s DIFFERENCE)!<br>It took ${fthAttemptsCount[pName]} attempts.`;
                     document.getElementById('fth-winner-overlay').style.display = 'flex';
-                } else {
-                    const btn = document.getElementById('fth-action-btn'); 
-                    btn.textContent = 'NEXT PLAYER'; 
-                    btn.classList.remove('stop-mode');
-                }
+                } else { const btn = document.getElementById('fth-action-btn'); btn.textContent = 'NEXT PLAYER'; btn.classList.remove('stop-mode'); }
             } else if (fthGameState === 'finished') {
-                fthCurrentIdx = (fthCurrentIdx + 1) % fthPlayers.length; 
-                fthResetUI();
+                fthCurrentIdx = (fthCurrentIdx + 1) % fthPlayers.length; fthResetUI();
             }
         }
-
         function fthUpdateRightPanel() {
-            const sorted = [...fthBestAttempts].sort((a, b) => a.absDiff - b.absDiff).slice(0, 10); 
-            let html = '';
-            sorted.forEach((e, i) => { 
-                let color = e.diffMs > 0 ? '#ff5555' : '#55ff55'; 
-                let attempts = fthAttemptsCount[e.name];
-                html += `<div><span>${i + 1}. ${e.name} (${attempts}x)</span><span style="color:${color}">${e.displayDiff}</span></div>`; 
-            });
-            for(let i = sorted.length; i < 10; i++) { 
-                html += `<div><span>${i + 1}. -</span><span>-</span></div>`; 
-            }
+            const sorted = [...fthBestAttempts].sort((a, b) => a.absDiff - b.absDiff).slice(0, 10); let html = '';
+            sorted.forEach((e, i) => { let color = e.diffMs > 0 ? '#ff5555' : '#55ff55'; html += `<div><span>${i + 1}. ${e.name} (${fthAttemptsCount[e.name]}x)</span><span style="color:${color}">${e.displayDiff}</span></div>`; });
+            for(let i = sorted.length; i < 10; i++) html += `<div><span>${i + 1}. -</span><span>-</span></div>`;
             document.getElementById('fth-results-container').innerHTML = html;
+        }
+
+        // ==========================================
+        // 5. MARATHON MODE (GLOBAL LEADERBOARD)
+        // ==========================================
+        let marGameState = 'waiting', marRound = 1, marTargetMs = 0, marStart = 0, marCumulativeDiffMs = 0, marRoundHistory = [];
+        function initMarathon() {
+            marGameState = 'waiting'; marRound = 1; marCumulativeDiffMs = 0; marRoundHistory = [];
+            document.getElementById('mar-winner-overlay').style.display = 'none';
+            marNewTarget(); marResetUI(); marUpdateScoreboard();
+        }
+        function marNewTarget() {
+            marTargetMs = Math.floor(Math.random() * 14000) + 1000;
+            document.getElementById('mar-target-display').textContent = `TARGET TIME: ${(marTargetMs / 1000).toFixed(2)}`;
+        }
+        function marResetUI() {
+            document.getElementById('mar-timer-display').textContent = '00:00';
+            document.getElementById('mar-timer-display').classList.remove('hide-timer');
+            document.getElementById('mar-result-message').textContent = '';
+            document.getElementById('mar-subtitle').textContent = `ROUND ${marRound} / 10`;
+            const btn = document.getElementById('mar-action-btn');
+            btn.textContent = 'START'; btn.classList.remove('stop-mode');
+            marGameState = 'waiting';
+        }
+        function marHandleAction() {
+            if (document.getElementById('rules-modal').style.display === 'block') return;
+            if (marGameState === 'waiting') {
+                marGameState = 'running'; marStart = Date.now();
+                document.getElementById('mar-timer-display').classList.add('hide-timer');
+                const btn = document.getElementById('mar-action-btn'); btn.textContent = 'STOP'; btn.classList.add('stop-mode');
+            } else if (marGameState === 'running') {
+                const elapsedMs = Date.now() - marStart; marGameState = 'finished';
+                document.getElementById('mar-timer-display').classList.remove('hide-timer');
+                document.getElementById('mar-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
+                
+                let diffMs = elapsedMs - marTargetMs;
+                if (Math.abs(diffMs) <= 15) diffMs = 0;
+                marCumulativeDiffMs += diffMs;
+                
+                const diffSec = (diffMs / 1000).toFixed(2);
+                let sign = diffMs > 0 ? '+' : '';
+                document.getElementById('mar-result-message').textContent = `ROUND DIFF: ${sign}${diffSec}s`;
+                
+                marRoundHistory.push({ round: marRound, displayDiff: `${sign}${diffSec}`, diffMs: diffMs });
+                marUpdateScoreboard();
+
+                const btn = document.getElementById('mar-action-btn');
+                if (marRound < 10) {
+                    btn.textContent = 'NEXT ROUND'; btn.classList.remove('stop-mode');
+                } else {
+                    btn.textContent = 'FINISH & SUBMIT'; btn.classList.remove('stop-mode');
+                }
+            } else if (marGameState === 'finished') {
+                if (marRound < 10) {
+                    marRound++; marNewTarget(); marResetUI();
+                } else {
+                    const pName = document.getElementById('mar-player-name').value || "Player";
+                    let absDiff = Math.abs(marCumulativeDiffMs);
+                    let totalSec = (absDiff / 1000).toFixed(2);
+                    let totalSign = marCumulativeDiffMs > 0 ? '+' : (marCumulativeDiffMs < 0 ? '-' : '');
+                    
+                    document.getElementById('mar-winner-text').textContent = `${pName.toUpperCase()} FINISHED!`;
+                    document.getElementById('mar-final-score-hint').innerHTML = `Total error: <span style="color: ${marCumulativeDiffMs === 0 ? '#00ff00' : '#ff5555'}">${totalSign}${totalSec}s</span><br><br><span id="mar-rank-display" style="font-size: 1.5rem; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">Calculating rank...</span>`;
+                    document.getElementById('mar-winner-overlay').style.display = 'flex';
+                    marGameState = 'ended';
+
+                    // Vypočítání Ranku a odeslání do DB
+                    db.ref('globalLeaderboard').orderByChild('absDiff').endAt(absDiff - 0.1).once('value').then(snapshot => {
+                        let rank = snapshot.numChildren() + 1;
+                        
+                        db.ref('globalLeaderboard').push({
+                            name: pName,
+                            totalDiffMs: marCumulativeDiffMs,
+                            absDiff: absDiff,
+                            displayDiff: `${totalSign}${totalSec}s`,
+                            date: Date.now()
+                        });
+
+                        document.getElementById('mar-rank-display').innerHTML = `GLOBAL RANK: <strong>#${rank}</strong> 🏆`;
+                    }).catch(e => {
+                        document.getElementById('mar-rank-display').innerHTML = `<span style="font-size: 1rem; color: #aaa;">Score submitted!</span>`;
+                    });
+                }
+            }
+        }
+        function marUpdateScoreboard() {
+            let html = '';
+            marRoundHistory.forEach(r => {
+                let color = r.diffMs > 0 ? '#ff5555' : '#55ff55';
+                if(r.diffMs === 0) color = '#00ff00';
+                html += `<div><span>R${r.round}:</span><span style="color:${color}">${r.displayDiff}s</span></div>`;
+            });
+            for(let i = marRoundHistory.length; i < 10; i++) {
+                html += `<div><span>R${i+1}:</span><span>-</span></div>`;
+            }
+            document.getElementById('mar-score-container').innerHTML = html;
         }
 
         // ==========================================
@@ -1025,6 +1005,7 @@
                 else if (activeGame === 'srv') { if (srvGameState === 'message') srvDismissOverlay(); else srvHandleAction(); }
                 else if (activeGame === 'imp') { if (impGameState === 'revealing' || impGameState === 'voting' || impGameState === 'result') return; impHandleAction(); }
                 else if (activeGame === 'fth') { if (fthGameState === 'message') initFth(); else fthHandleAction(); }
+                else if (activeGame === 'mar') { if (marGameState === 'ended') initMarathon(); else marHandleAction(); }
             }
         });
     </script>
