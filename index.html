@@ -965,7 +965,13 @@
                 document.getElementById('fth-timer-display').classList.remove('hide-timer'); 
                 document.getElementById('fth-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
                 
-                const diffMs = elapsedMs - fthTargetMs; 
+                let diffMs = elapsedMs - fthTargetMs;
+                
+                // OPRAVA: Pokud je odchylka v rozmezí do 15 milisekund, považujeme to za přesnou trefu (0.00s)
+                if (Math.abs(diffMs) <= 15) {
+                    diffMs = 0;
+                }
+
                 const diffSec = (diffMs / 1000).toFixed(2); 
                 let sign = diffMs > 0 ? '+' : '';
                 document.getElementById('fth-result-message').textContent = `DIFFERENCE: ${sign}${diffSec}s`;
@@ -976,7 +982,7 @@
                 
                 fthUpdateRightPanel();
                 
-                if (diffSec === "0.00" || diffSec === "-0.00") {
+                if (diffSec === "0.00" || diffSec === "-0.00" || diffMs === 0) {
                     fthGameState = 'message'; 
                     document.getElementById('fth-winner-text').textContent = `${pName.toUpperCase()} WINS!`; 
                     document.querySelector('#fth-winner-overlay .overlay-hint').innerHTML = `EXACT HIT (0.00s DIFFERENCE)!<br>It took ${fthAttemptsCount[pName]} attempts.`;
