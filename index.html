@@ -439,15 +439,16 @@
         }
         setInterval(updateMenuClock, 1000); updateMenuClock();
 
-        // Automatické načtení Top 25 žebříčku do dolní sekce menu
+        // Automatické načtení Top 25 žebříčku do dolní sekce menu s useknutím znaménka
         function initMainGlobalLeaderboard() {
             db.ref('globalLeaderboard').orderByChild('absDiff').limitToFirst(25).on('value', snapshot => {
                 let html = '';
                 let rank = 1;
                 snapshot.forEach(childSnap => {
                     let data = childSnap.val();
-                    let color = data.totalDiffMs > 0 ? '#ff5555' : (data.totalDiffMs < 0 ? '#55ff55' : '#00ff00');
-                    html += `<div style="padding: 6px 0; border-bottom: 1px dashed rgba(0,255,0,0.3);"><span>${rank}. ${data.name}</span><span style="color:${color}">${data.displayDiff}</span></div>`;
+                    let cleanSec = (data.absDiff / 1000).toFixed(2); // Vždy ukáže čistou absolutní hodnotu bez plus/mínus
+                    let color = data.absDiff === 0 ? '#00ff00' : '#ff5555';
+                    html += `<div style="padding: 6px 0; border-bottom: 1px dashed rgba(0,255,0,0.3);"><span>${rank}. ${data.name}</span><span style="color:${color}">${cleanSec}s</span></div>`;
                     rank++;
                 });
                 if (html === '') html = '<div><span>No scores yet</span><span>-</span></div>';
@@ -488,9 +489,8 @@
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off();
         }
 
-        // Nová funkce pro přímý skok na žebříček z obrazovky výsledků maratonu
         function goToGlobalRanking() {
-            initMarathon(); // Zresetuje stav maratonu pro příště
+            initMarathon(); 
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
             document.getElementById('menu-view').classList.add('active-view');
             document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
@@ -953,14 +953,12 @@
                     const pName = document.getElementById('mar-player-name').value || "Player";
                     let absDiff = Math.abs(marCumulativeDiffMs);
                     let totalSec = (absDiff / 1000).toFixed(2);
-                    let totalSign = marCumulativeDiffMs > 0 ? '+' : (marCumulativeDiffMs < 0 ? '-' : '');
                     
                     document.getElementById('mar-winner-text').textContent = `${pName.toUpperCase()} FINISHED!`;
-                    document.getElementById('mar-final-score-hint').innerHTML = `Total error: <span style="color: ${marCumulativeDiffMs === 0 ? '#00ff00' : '#ff5555'}">${totalSign}${totalSec}s</span><br><br><span id="mar-rank-display" style="font-size: 1.5rem; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">Calculating rank...</span>`;
+                    document.getElementById('mar-final-score-hint').innerHTML = `Total error: <span style="color: ${absDiff === 0 ? '#00ff00' : '#ff5555'}">${totalSec}s</span><br><br><span id="mar-rank-display" style="font-size: 1.5rem; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">Calculating rank...</span>`;
                     document.getElementById('mar-winner-overlay').style.display = 'flex';
                     marGameState = 'ended';
 
-                    // Vypočítání Ranku a odeslání do DB
                     db.ref('globalLeaderboard').orderByChild('absDiff').endAt(absDiff - 0.1).once('value').then(snapshot => {
                         let rank = snapshot.numChildren() + 1;
                         
@@ -968,7 +966,7 @@
                             name: pName,
                             totalDiffMs: marCumulativeDiffMs,
                             absDiff: absDiff,
-                            displayDiff: `${totalSign}${totalSec}s`,
+                            displayDiff: `${totalSec}s`, // Odesíláme čistě bez znaménka
                             date: Date.now()
                         });
 
