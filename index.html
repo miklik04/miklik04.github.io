@@ -40,6 +40,14 @@
             align-items: center; justify-content: center; flex-shrink: 0; position: relative;
         }
 
+        /* --- TLAČÍTKO HUDBY --- */
+        #music-toggle {
+            position: absolute; top: 20px; left: 40px; color: #ff0000; border: 2px solid #ff0000;
+            padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 1.2rem;
+            font-weight: bold; background: black; transition: all 0.2s; z-index: 20;
+        }
+        #music-toggle:hover { background-color: rgba(255, 0, 0, 0.2); transform: scale(1.05); }
+
         #menu-clock { font-size: 8rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); text-align: center; }
         .menu-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 900px; }
         .menu-btn {
@@ -179,7 +187,8 @@
             body { overflow-y: auto; height: auto; min-height: 100vh; }
             .view { height: auto; min-height: 100vh; justify-content: flex-start; padding-bottom: 40px; }
             .menu-section { min-height: 100vh; padding: 20px 0; justify-content: flex-start; }
-            #menu-clock { font-size: 5rem; margin-top: 40px; margin-bottom: 20px; }
+            #music-toggle { top: 10px; left: 20px; font-size: 1rem; padding: 8px 15px; }
+            #menu-clock { font-size: 5rem; margin-top: 60px; margin-bottom: 20px; }
             .menu-buttons { flex-wrap: wrap; justify-content: center; max-width: 320px; gap: 12px; }
             .menu-btn { width: 140px; height: 140px; font-size: 1rem; }
             .top-bar { position: fixed; background: rgba(0,0,0,0.9); padding: 10px 20px; top: 0; left: 0; border-bottom: 1px solid #ff0000; }
@@ -202,11 +211,20 @@
 </head>
 <body>
 
+    <!-- AUDIO PRO MENU -->
+    <audio id="menu-bgm" loop>
+        <source src="menu-music.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- HLAVNÍ MENU S POSUVNÝM ŽEBŘÍČKEM -->
     <div id="menu-view" class="view active-view">
         
         <!-- PRVNÍ OBRAZOVKA (Tlačítka) -->
         <div class="menu-section">
+            
+            <!-- TLAČÍTKO PRO HUDBU -->
+            <div id="music-toggle" class="digital-font" onclick="toggleMusic()">🎵 MUSIC: OFF</div>
+
             <div id="menu-clock" class="digital-font">22:22</div>
             <div class="menu-buttons">
                 <button class="menu-btn" onclick="startGame('hit-the-time')">HIT<br>THE<br>TIME</button>
@@ -431,6 +449,27 @@
 
         let activeGame = null;
 
+        // --- HUDBA ---
+        let isMusicEnabled = false;
+        const bgm = document.getElementById('menu-bgm');
+
+        function toggleMusic() {
+            if (bgm.paused) {
+                bgm.play().then(() => {
+                    isMusicEnabled = true;
+                    document.getElementById('music-toggle').textContent = '🎵 MUSIC: ON';
+                    document.getElementById('music-toggle').style.color = '#00ff00';
+                    document.getElementById('music-toggle').style.borderColor = '#00ff00';
+                }).catch(e => console.log("Audio play failed", e));
+            } else {
+                bgm.pause();
+                isMusicEnabled = false;
+                document.getElementById('music-toggle').textContent = '🎵 MUSIC: OFF';
+                document.getElementById('music-toggle').style.color = '#ff0000';
+                document.getElementById('music-toggle').style.borderColor = '#ff0000';
+            }
+        }
+
         function updateMenuClock() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -458,6 +497,8 @@
         initMainGlobalLeaderboard();
 
         function startGame(gameId) {
+            bgm.pause(); // Vypne hudbu při startu hry
+            
             document.getElementById('menu-view').classList.remove('active-view');
             activeGame = gameId;
             
@@ -487,6 +528,10 @@
             document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
             activeGame = null;
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off();
+            
+            if (isMusicEnabled) {
+                bgm.play().catch(e => {}); // Zapne zpět hudbu v menu
+            }
         }
 
         function goToGlobalRanking() {
@@ -496,6 +541,10 @@
             document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
             activeGame = null;
             document.getElementById('ranking-section').scrollIntoView({ behavior: 'smooth' });
+            
+            if (isMusicEnabled) {
+                bgm.play().catch(e => {}); // Zapne hudbu i při skoku na žebříček
+            }
         }
 
         function updatePlayerInputs(mode) {
@@ -953,12 +1002,14 @@
                     const pName = document.getElementById('mar-player-name').value || "Player";
                     let absDiff = Math.abs(marCumulativeDiffMs);
                     let totalSec = (absDiff / 1000).toFixed(2);
+                    let totalSign = marCumulativeDiffMs > 0 ? '+' : (marCumulativeDiffMs < 0 ? '-' : '');
                     
                     document.getElementById('mar-winner-text').textContent = `${pName.toUpperCase()} FINISHED!`;
-                    document.getElementById('mar-final-score-hint').innerHTML = `Total error: <span style="color: ${absDiff === 0 ? '#00ff00' : '#ff5555'}">${totalSec}s</span><br><br><span id="mar-rank-display" style="font-size: 1.5rem; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">Calculating rank...</span>`;
+                    document.getElementById('mar-final-score-hint').innerHTML = `Total error: <span style="color: ${marCumulativeDiffMs === 0 ? '#00ff00' : '#ff5555'}">${totalSign}${totalSec}s</span><br><br><span id="mar-rank-display" style="font-size: 1.5rem; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">Calculating rank...</span>`;
                     document.getElementById('mar-winner-overlay').style.display = 'flex';
                     marGameState = 'ended';
 
+                    // Vypočítání Ranku a odeslání do DB
                     db.ref('globalLeaderboard').orderByChild('absDiff').endAt(absDiff - 0.1).once('value').then(snapshot => {
                         let rank = snapshot.numChildren() + 1;
                         
