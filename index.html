@@ -369,17 +369,55 @@
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off();
         }
 
+        // ==========================================
+        // VYLEPŠENÁ LOGIKA PRO POLE SE JMÉNY HRÁČŮ
+        // ==========================================
         function updatePlayerInputs(mode) {
             let defValue = (mode === 'imp') ? 3 : 2;
             const inputEl = document.getElementById(`${mode}-num-players`);
             if(!inputEl) return;
             const num = parseInt(inputEl.value) || defValue;
             const container = document.getElementById(`${mode}-players-list`);
+
+            // Uložíme si aktuálně napsaná jména, aby se při změně počtu nesmazala
+            const existingInputs = container.getElementsByTagName('input');
+            const currentNames = [];
+            for(let i = 0; i < existingInputs.length; i++) {
+                currentNames.push(existingInputs[i].value);
+            }
+
             container.innerHTML = '';
             for(let i = 1; i <= num; i++) {
-                container.innerHTML += `<input type="text" class="${mode}-player-name" value="Player${i}">`;
+                let val = currentNames[i-1] || `Player${i}`;
+                // Přidáno oninput pro okamžitou změnu jména přímo ve hře během psaní
+                container.innerHTML += `<input type="text" class="${mode}-player-name" value="${val}" oninput="handleNameChange('${mode}')">`;
+            }
+            handleNameChange(mode);
+        }
+
+        // Okamžitá aktualizace hry, když uživatel změní počet hráčů nebo přepíše jméno
+        function handleNameChange(mode) {
+            if (mode === 'htt' && activeGame === 'htt') {
+                const players = document.getElementsByClassName('htt-player-name');
+                if (httPlayerIdx >= players.length) httPlayerIdx = 0;
+                if (httGameState === 'waiting' || httGameState === 'finished') {
+                    httResetUI();
+                }
+            } else if (mode === 'fth' && activeGame === 'fth') {
+                const inputs = document.getElementsByClassName('fth-player-name');
+                fthPlayers = [];
+                for(let i=0; i<inputs.length; i++) fthPlayers.push(inputs[i].value || `Player${i+1}`);
+                if (fthCurrentIdx >= fthPlayers.length) fthCurrentIdx = 0;
+                if (fthGameState === 'waiting') {
+                    fthResetUI();
+                }
+            } else if (mode === 'imp' && activeGame === 'imp') {
+                const inputs = document.getElementsByClassName('imp-player-name');
+                impPlayers = [];
+                for(let i=0; i<inputs.length; i++) impPlayers.push(inputs[i].value || `Player${i+1}`);
             }
         }
+        // ==========================================
 
         function showRules(mode) {
             const modal = document.getElementById('rules-modal');
