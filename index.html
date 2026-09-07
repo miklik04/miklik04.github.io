@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HB1DEGV036"></script>
 <script>
@@ -29,7 +28,7 @@
         .active-view { display: flex; }
 
         /* --- HLAVNÍ MENU --- */
-        #menu-clock { font-size: 8rem; margin-bottom: 50px; text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); text-align: center; }
+        #menu-clock { font-size: 8rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); text-align: center; }
         .menu-buttons { display: flex; gap: 20px; }
         .menu-btn {
             background: transparent; border: 4px solid #ff0000; color: #ff0000;
@@ -39,6 +38,23 @@
             transition: all 0.2s ease;
         }
         .menu-btn:hover { background-color: rgba(255, 0, 0, 0.1); transform: scale(1.05); }
+
+        /* --- SOCIÁLNÍ IKONY V MENU --- */
+        .social-links {
+            display: flex; gap: 25px; margin-top: 35px; align-items: center; justify-content: center;
+        }
+        .social-icon-btn {
+            width: 50px; height: 50px; border: 2px solid #ff0000; background: black;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,0,0,0.2); transition: all 0.2s ease; cursor: pointer;
+            padding: 10px; box-sizing: border-box;
+        }
+        .social-icon-btn svg {
+            width: 100%; height: 100%; display: block;
+        }
+        .social-icon-btn:hover {
+            background-color: rgba(255, 0, 0, 0.15); transform: scale(1.1); box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
 
         /* --- SPOLEČNÉ HERNÍ STYLY --- */
         .top-bar {
@@ -126,7 +142,7 @@
             .view { 
                 height: auto; min-height: 100vh; justify-content: flex-start; padding-bottom: 40px; 
             }
-            #menu-clock { font-size: 5rem; margin-top: 60px; margin-bottom: 30px; }
+            #menu-clock { font-size: 5rem; margin-top: 40px; margin-bottom: 20px; }
             .menu-buttons { flex-wrap: wrap; justify-content: center; max-width: 320px; gap: 15px; }
             .menu-btn { width: 140px; height: 140px; font-size: 1.2rem; }
             .top-bar { position: fixed; background: rgba(0,0,0,0.9); padding: 10px 20px; top: 0; left: 0; border-bottom: 1px solid #ff0000; }
@@ -157,6 +173,51 @@
             <button class="menu-btn" onclick="startGame('survival')">SURVIVAL<br>MODE</button>
             <button class="menu-btn" onclick="startGame('impostor')">IMPOSTOR<br>MODE</button>
             <button class="menu-btn" onclick="startGame('first-to-hit')">FIRST<br>TO<br>HIT</button>
+        </div>
+        
+        <!-- SOCIÁLNÍ SÍTĚ (PŘESNÉ VKLAD Z TVÉHO CORELu) -->
+        <div class="social-links">
+            <!-- Instagram -->
+            <a href="https://instagram.com/hitthetimer" target="_blank" class="social-icon-btn" title="Instagram">
+                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 11855.25 11855.25">
+                    <defs>
+                        <style type="text/css">
+                            .str-ig {stroke:#ED282E;stroke-width:826.11;stroke-miterlimit:22.9256}
+                            .fil-none {fill:none}
+                            .fil-red {fill:#ED282E}
+                        </style>
+                    </defs>
+                    <g>
+                        <rect class="fil-none str-ig" x="413.05" y="413.05" width="11029.14" height="11029.14" rx="2297.74" ry="2297.74"/>
+                        <circle class="fil-none str-ig" cx="5930.13" cy="5938.42" r="2696.02"/>
+                        <circle class="fil-red" cx="9202.38" cy="2664.54" r="713.52"/>
+                    </g>
+                </svg>
+            </a>
+            <!-- Reddit -->
+            <a href="https://reddit.com/r/hitthetimer" target="_blank" class="social-icon-btn" title="Reddit">
+                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 18037.9 15039.07">
+                    <defs>
+                        <style type="text/css">
+                            .str-rd1 {stroke:#ED282E;stroke-width:699.71;stroke-miterlimit:22.9256}
+                            .str-rd0 {stroke:#ED282E;stroke-width:899.63;stroke-miterlimit:22.9256}
+                            .str-rd2 {stroke:#ED282E;stroke-width:899.63;stroke-linecap:round;stroke-miterlimit:22.9256}
+                            .fil-none {fill:none}
+                            .fil-red {fill:#ED282E}
+                        </style>
+                    </defs>
+                    <g>
+                        <ellipse class="fil-none str-rd0" cx="9073.89" cy="9600.44" rx="7381.11" ry="4988.82"/>
+                        <polyline class="fil-none str-rd0" points="8754.78,4616.2 10094.99,643.92 13012.42,1460.8 "/>
+                        <circle class="fil-none str-rd1" cx="14576.31" cy="1978" r="1628.15"/>
+                        <circle class="fil-red" cx="11567.63" cy="8647.6" r="1212.19"/>
+                        <circle class="fil-red" cx="6342.53" cy="8647.61" r="1212.19"/>
+                        <path class="fil-none str-rd2" d="M6196.4 11657.88c1814.44,1237.49 3662.3,1237.49 5543.61,0"/>
+                        <path class="fil-none str-rd0" d="M14064.61 5924.81c2952.67,-2193.45 4858.79,2696.38 2387.79,3542.2"/>
+                        <path class="fil-none str-rd0" d="M3973.29 5863.75c-2952.67,-2193.45 -4858.79,2696.38 -2387.79,3542.2"/>
+                    </g>
+                </svg>
+            </a>
         </div>
     </div>
 
@@ -370,9 +431,6 @@
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off();
         }
 
-        // ==========================================
-        // VYLEPŠENÁ LOGIKA PRO POLE SE JMÉNY HRÁČŮ
-        // ==========================================
         function updatePlayerInputs(mode) {
             let defValue = (mode === 'imp') ? 3 : 2;
             const inputEl = document.getElementById(`${mode}-num-players`);
@@ -380,7 +438,6 @@
             const num = parseInt(inputEl.value) || defValue;
             const container = document.getElementById(`${mode}-players-list`);
 
-            // Uložíme si aktuálně napsaná jména, aby se při změně počtu nesmazala
             const existingInputs = container.getElementsByTagName('input');
             const currentNames = [];
             for(let i = 0; i < existingInputs.length; i++) {
@@ -390,13 +447,11 @@
             container.innerHTML = '';
             for(let i = 1; i <= num; i++) {
                 let val = currentNames[i-1] || `Player${i}`;
-                // Přidáno oninput pro okamžitou změnu jména přímo ve hře během psaní
                 container.innerHTML += `<input type="text" class="${mode}-player-name" value="${val}" oninput="handleNameChange('${mode}')">`;
             }
             handleNameChange(mode);
         }
 
-        // Okamžitá aktualizace hry, když uživatel změní počet hráčů nebo přepíše jméno
         function handleNameChange(mode) {
             if (mode === 'htt' && activeGame === 'htt') {
                 const players = document.getElementsByClassName('htt-player-name');
@@ -418,7 +473,6 @@
                 for(let i=0; i<inputs.length; i++) impPlayers.push(inputs[i].value || `Player${i+1}`);
             }
         }
-        // ==========================================
 
         function showRules(mode) {
             const modal = document.getElementById('rules-modal');
