@@ -110,8 +110,12 @@
         /* MOBILNÍ ZOBRAZENÍ (RESPONSIVE DESIGN)     */
         /* ========================================= */
         @media (max-width: 900px) {
-            body { overflow-y: auto; height: auto; min-height: 100vh; }
-            .view { height: auto; min-height: 100vh; justify-content: flex-start; padding-bottom: 40px; }
+            body { 
+                overflow-y: auto; height: auto; min-height: 100vh; 
+            }
+            .view { 
+                height: auto; min-height: 100vh; justify-content: flex-start; padding-bottom: 40px; 
+            }
             #menu-clock { font-size: 5rem; margin-top: 60px; margin-bottom: 30px; }
             .menu-buttons { flex-wrap: wrap; justify-content: center; max-width: 320px; gap: 15px; }
             .menu-btn { width: 140px; height: 140px; font-size: 1.2rem; }
@@ -135,6 +139,7 @@
 </head>
 <body>
 
+    <!-- HLAVNÍ MENU -->
     <div id="menu-view" class="view active-view">
         <div id="menu-clock" class="digital-font">22:22</div>
         <div class="menu-buttons">
@@ -145,6 +150,7 @@
         </div>
     </div>
 
+    <!-- HRA 1: HIT THE TIME -->
     <div id="hit-the-time-view" class="view">
         <div class="top-bar">
             <div class="circle-icon" onclick="showRules('htt')">i</div>
@@ -174,6 +180,7 @@
         </div>
     </div>
 
+    <!-- HRA 2: SURVIVAL MODE (MULTIPLAYER LOBBY) -->
     <div id="survival-view" class="view">
         <div class="top-bar"><div class="circle-icon" onclick="showRules('srv')">i</div><div class="text-icon" onclick="backToMenu()">MENU</div></div>
         <h1>SURVIVAL MODE</h1>
@@ -217,6 +224,7 @@
         </div>
     </div>
 
+    <!-- HRA 3: IMPOSTOR MODE -->
     <div id="impostor-view" class="view">
         <div class="top-bar"><div class="circle-icon" onclick="showRules('imp')">i</div><div class="text-icon" onclick="backToMenu()">MENU</div></div>
         <h1>IMPOSTOR MODE</h1>
@@ -255,6 +263,7 @@
         </div>
     </div>
 
+    <!-- HRA 4: FIRST TO HIT -->
     <div id="first-to-hit-view" class="view">
         <div class="top-bar"><div class="circle-icon" onclick="showRules('fth')">i</div><div class="text-icon" onclick="backToMenu()">MENU</div></div>
         <h1>FIRST TO HIT</h1>
@@ -287,12 +296,14 @@
         </div>
     </div>
 
+    <!-- MODAL OKNO S PRAVIDLY -->
     <div id="rules-modal">
         <h2 id="rules-title">HOW TO PLAY</h2>
         <p id="rules-text"></p>
         <button class="close-btn" onclick="hideRules()">CLOSE</button>
     </div>
 
+    <!-- NAČTENÍ FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
 
@@ -800,45 +811,96 @@
         // 4. FIRST TO HIT
         // ==========================================
         let fthGameState = 'waiting', fthTargetMs = 0, fthStart = 0, fthPlayers = [], fthCurrentIdx = 0, fthBestAttempts = [];
+        let fthAttemptsCount = {};
+
         function initFth() {
             const inputs = document.getElementsByClassName('fth-player-name'); fthPlayers = [];
             for(let i=0; i<inputs.length; i++) fthPlayers.push(inputs[i].value || `Player${i+1}`);
             if(fthPlayers.length < 1) return;
-            fthCurrentIdx = 0; fthBestAttempts = []; fthTargetMs = Math.floor(Math.random() * 4000) + 2000;
+            
+            fthCurrentIdx = 0; 
+            fthBestAttempts = []; 
+            fthTargetMs = Math.floor(Math.random() * 4000) + 2000;
+            fthAttemptsCount = {};
+            fthPlayers.forEach(p => fthAttemptsCount[p] = 0);
+            
             document.getElementById('fth-target-display').textContent = `TARGET TIME: ${(fthTargetMs / 1000).toFixed(2)}`;
-            document.getElementById('fth-winner-overlay').style.display = 'none'; fthUpdateRightPanel(); fthResetUI();
+            document.getElementById('fth-winner-overlay').style.display = 'none'; 
+            fthUpdateRightPanel(); 
+            fthResetUI();
         }
+
         function fthResetUI() {
-            document.getElementById('fth-timer-display').textContent = '00:00'; document.getElementById('fth-timer-display').classList.remove('hide-timer'); document.getElementById('fth-result-message').textContent = '';
-            const pName = fthPlayers[fthCurrentIdx]; document.getElementById('fth-subtitle').textContent = `TURN: ${pName.toUpperCase()}`;
-            const btn = document.getElementById('fth-action-btn'); btn.textContent = `START (${pName})`; btn.classList.remove('stop-mode'); fthGameState = 'waiting';
+            document.getElementById('fth-timer-display').textContent = '00:00'; 
+            document.getElementById('fth-timer-display').classList.remove('hide-timer'); 
+            document.getElementById('fth-result-message').textContent = '';
+            
+            const pName = fthPlayers[fthCurrentIdx]; 
+            const attemptNum = (fthAttemptsCount[pName] || 0) + 1;
+            document.getElementById('fth-subtitle').textContent = `TURN: ${pName.toUpperCase()} (ATTEMPT ${attemptNum})`;
+            
+            const btn = document.getElementById('fth-action-btn'); 
+            btn.textContent = `START (${pName})`; 
+            btn.classList.remove('stop-mode'); 
+            fthGameState = 'waiting';
         }
+
         function fthHandleAction() {
             if (document.getElementById('rules-modal').style.display === 'block') return;
             if (fthGameState === 'message') return;
+            
             if (fthGameState === 'waiting') {
-                fthGameState = 'running'; fthStart = Date.now(); document.getElementById('fth-timer-display').classList.add('hide-timer');
-                const btn = document.getElementById('fth-action-btn'); btn.textContent = 'STOP'; btn.classList.add('stop-mode');
+                fthGameState = 'running'; 
+                fthStart = Date.now(); 
+                document.getElementById('fth-timer-display').classList.add('hide-timer');
+                const btn = document.getElementById('fth-action-btn'); 
+                btn.textContent = 'STOP'; 
+                btn.classList.add('stop-mode');
             } else if (fthGameState === 'running') {
-                const elapsedMs = Date.now() - fthStart; fthGameState = 'finished';
-                document.getElementById('fth-timer-display').classList.remove('hide-timer'); document.getElementById('fth-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
-                const diffMs = elapsedMs - fthTargetMs; const diffSec = (diffMs / 1000).toFixed(2); let sign = diffMs > 0 ? '+' : '';
+                const elapsedMs = Date.now() - fthStart; 
+                fthGameState = 'finished';
+                
+                document.getElementById('fth-timer-display').classList.remove('hide-timer'); 
+                document.getElementById('fth-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
+                
+                const diffMs = elapsedMs - fthTargetMs; 
+                const diffSec = (diffMs / 1000).toFixed(2); 
+                let sign = diffMs > 0 ? '+' : '';
                 document.getElementById('fth-result-message').textContent = `DIFFERENCE: ${sign}${diffSec}s`;
-                const pName = fthPlayers[fthCurrentIdx]; fthBestAttempts.push({ name: pName, diffMs: diffMs, absDiff: Math.abs(diffMs), displayDiff: `${sign}${diffSec}` });
+                
+                const pName = fthPlayers[fthCurrentIdx]; 
+                fthAttemptsCount[pName] = (fthAttemptsCount[pName] || 0) + 1;
+                fthBestAttempts.push({ name: pName, diffMs: diffMs, absDiff: Math.abs(diffMs), displayDiff: `${sign}${diffSec}` });
+                
                 fthUpdateRightPanel();
+                
                 if (diffSec === "0.00" || diffSec === "-0.00") {
-                    fthGameState = 'message'; document.getElementById('fth-winner-text').textContent = `${pName.toUpperCase()} WINS!`; document.getElementById('fth-winner-overlay').style.display = 'flex';
+                    fthGameState = 'message'; 
+                    document.getElementById('fth-winner-text').textContent = `${pName.toUpperCase()} WINS!`; 
+                    document.querySelector('#fth-winner-overlay .overlay-hint').innerHTML = `EXACT HIT (0.00s DIFFERENCE)!<br>It took ${fthAttemptsCount[pName]} attempts.`;
+                    document.getElementById('fth-winner-overlay').style.display = 'flex';
                 } else {
-                    const btn = document.getElementById('fth-action-btn'); btn.textContent = 'NEXT PLAYER'; btn.classList.remove('stop-mode');
+                    const btn = document.getElementById('fth-action-btn'); 
+                    btn.textContent = 'NEXT PLAYER'; 
+                    btn.classList.remove('stop-mode');
                 }
             } else if (fthGameState === 'finished') {
-                fthCurrentIdx = (fthCurrentIdx + 1) % fthPlayers.length; fthResetUI();
+                fthCurrentIdx = (fthCurrentIdx + 1) % fthPlayers.length; 
+                fthResetUI();
             }
         }
+
         function fthUpdateRightPanel() {
-            const sorted = [...fthBestAttempts].sort((a, b) => a.absDiff - b.absDiff).slice(0, 10); let html = '';
-            sorted.forEach((e, i) => { let color = e.diffMs > 0 ? '#ff5555' : '#55ff55'; html += `<div><span>${i + 1}. ${e.name}</span><span style="color:${color}">${e.displayDiff}</span></div>`; });
-            for(let i = sorted.length; i < 10; i++) { html += `<div><span>${i + 1}. -</span><span>-</span></div>`; }
+            const sorted = [...fthBestAttempts].sort((a, b) => a.absDiff - b.absDiff).slice(0, 10); 
+            let html = '';
+            sorted.forEach((e, i) => { 
+                let color = e.diffMs > 0 ? '#ff5555' : '#55ff55'; 
+                let attempts = fthAttemptsCount[e.name];
+                html += `<div><span>${i + 1}. ${e.name} (${attempts}x)</span><span style="color:${color}">${e.displayDiff}</span></div>`; 
+            });
+            for(let i = sorted.length; i < 10; i++) { 
+                html += `<div><span>${i + 1}. -</span><span>-</span></div>`; 
+            }
             document.getElementById('fth-results-container').innerHTML = html;
         }
 
