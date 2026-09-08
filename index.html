@@ -348,16 +348,33 @@
             <div class="subtitle digital-font" id="srv-subtitle">ONLINE MULTIPLAYER</div>
             <div class="target-time digital-font" id="srv-target-display">TARGET TIME: 0.00</div>
             <div class="main-timer digital-font" id="srv-timer-display">00:00</div>
-            <button class="action-btn" id="srv-action-btn" onclick="srvHandleAction()">START ROUND</button>
+            <button class="action-btn" id="srv-action-btn" onclick="srvPlayMode === 'online' ? srvHandleAction() : srvLocalHandleAction()">START ROUND</button>
             <div class="spacebar-hint">WAITING FOR PLAYERS...</div>
             <div id="srv-result-message" class="result-msg digital-font"></div>
         </div>
         <div class="right-panel">
-            <div class="panel-section"><div>Your Name</div><input type="text" id="srv-my-name" value="Player1"></div>
-            <div class="panel-section"><button class="action-btn" style="padding: 10px; font-size: 1rem; width: 100%;" onclick="srvCreateRoom()">CREATE ROOM</button></div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div>Room Code</div><input type="text" id="srv-room-code-input" placeholder="e.g. ABCD" style="text-transform: uppercase;"><button class="action-btn" style="padding: 10px; font-size: 1rem; margin-top:5px; background-color: #555; color: white; width: 100%;" onclick="srvJoinRoom()">JOIN ROOM</button></div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px; font-weight: bold;">ROOM: <span id="srv-display-room" style="color: #00ff00;">---</span></div><div class="players-list-container" id="srv-online-players-list"></div></div>
-            <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px;">RESULTS</div><div class="results-list digital-font" id="srv-results-container"></div></div>
+            <!-- PŘEPÍNAČ ONLINE / LOCAL -->
+            <div style="display: flex; width: 100%; margin-bottom: 15px;">
+                <button id="srv-mode-online-btn" class="action-btn" style="flex:1; padding: 10px; font-size: 1rem; margin:0; border-radius: 25px 0 0 25px; background-color: #00aa00; color: black;" onclick="srvSetMode('online')">ONLINE</button>
+                <button id="srv-mode-local-btn" class="action-btn" style="flex:1; padding: 10px; font-size: 1rem; margin:0; border-radius: 0 25px 25px 0; background-color: #333; color: white;" onclick="srvSetMode('local')">LOCAL</button>
+            </div>
+
+            <!-- ONLINE SETUP -->
+            <div id="srv-online-setup" style="width: 100%;">
+                <div class="panel-section"><div>Your Name</div><input type="text" id="srv-my-name" value="Player1"></div>
+                <div class="panel-section"><button class="action-btn" style="padding: 10px; font-size: 1rem; width: 100%;" onclick="srvCreateRoom()">CREATE ROOM</button></div>
+                <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div>Room Code</div><input type="text" id="srv-room-code-input" placeholder="e.g. ABCD" style="text-transform: uppercase;"><button class="action-btn" style="padding: 10px; font-size: 1rem; margin-top:5px; background-color: #555; color: white; width: 100%;" onclick="srvJoinRoom()">JOIN ROOM</button></div>
+                <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px; font-weight: bold;">ROOM: <span id="srv-display-room" style="color: #00ff00;">---</span></div><div class="players-list-container" id="srv-online-players-list"></div></div>
+                <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px;">RESULTS</div><div class="results-list digital-font" id="srv-results-container"></div></div>
+            </div>
+
+            <!-- LOCAL SETUP -->
+            <div id="srv-local-setup" style="width: 100%; display: none;">
+                <div class="panel-section"><div>Number of players</div><input type="number" id="srv-num-players" value="2" min="2" max="10" onchange="updatePlayerInputs('srv')"></div>
+                <div class="panel-section"><div>Name of players</div><div id="srv-players-list" class="players-list-container"></div></div>
+                <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><button class="action-btn" style="padding: 10px; font-size: 1rem; width: 100%;" onclick="srvStartLocalGame()">START GAME</button></div>
+                <div class="panel-section" style="border-top: 1px solid red; padding-top: 10px;"><div style="margin-bottom: 10px;">RESULTS</div><div class="results-list digital-font" id="srv-local-results-container"></div></div>
+            </div>
         </div>
         <div id="srv-elimination-overlay" class="fullscreen-overlay">
             <h2 id="srv-elimination-text">PLAYER ELIMINATED!</h2>
@@ -514,14 +531,13 @@
         }
         setInterval(updateMenuClock, 1000); updateMenuClock();
 
-        // Automatické načtení Top 25 žebříčku do dolní sekce menu s useknutím znaménka
         function initMainGlobalLeaderboard() {
             db.ref('globalLeaderboard').orderByChild('absDiff').limitToFirst(25).on('value', snapshot => {
                 let html = '';
                 let rank = 1;
                 snapshot.forEach(childSnap => {
                     let data = childSnap.val();
-                    let cleanSec = (data.absDiff / 1000).toFixed(2); // Vždy ukáže čistou absolutní hodnotu bez plus/mínus
+                    let cleanSec = (data.absDiff / 1000).toFixed(2); 
                     let color = data.absDiff === 0 ? '#00ff00' : '#ff5555';
                     html += `<div style="padding: 6px 0; border-bottom: 1px dashed rgba(0,255,0,0.3);"><span>${rank}. ${data.name}</span><span style="color:${color}">${cleanSec}s</span></div>`;
                     rank++;
@@ -532,31 +548,45 @@
         }
         initMainGlobalLeaderboard();
 
-        function startGame(gameId) {
-            bgm.pause(); // Vypne hudbu při startu hry
-            
+        const forbiddenWords = [
+            "kurva", "píča", "kokot", "debil", "idiot", "mrd", 
+            "fuck", "shit", "bitch", "cunt", "nigger", "nigga", "whore"
+        ];
+        function containsBadWords(name) {
+            const lowerName = name.toLowerCase();
+            return forbiddenWords.some(word => lowerName.includes(word));
+        }
+
+        // --- UPRAVENÁ FUNKCE S ROUTINGEM (HASH) ---
+        function startGame(gameId, isFromHash = false) {
+            bgm.pause(); 
             document.getElementById('menu-view').classList.remove('active-view');
             activeGame = gameId;
             
+            // Přidáme křížek do URL, pokud to nebylo spuštěno prohlížečem ze záložek
+            if (!isFromHash) {
+                window.location.hash = gameId;
+            }
+            
             if(gameId === 'hit-the-time') {
                 document.getElementById('hit-the-time-view').classList.add('active-view');
-                activeGame = 'htt'; updatePlayerInputs('htt'); initHtt();
+                activeGame = 'htt'; updatePlayerInputs('htt'); initHtt(); showRules('htt');
             } else if (gameId === 'survival') {
                 document.getElementById('survival-view').classList.add('active-view');
-                activeGame = 'srv'; initSrv();
+                activeGame = 'srv'; initSrv(); showRules('srv');
             } else if (gameId === 'impostor') {
                 document.getElementById('impostor-view').classList.add('active-view');
-                activeGame = 'imp'; updatePlayerInputs('imp'); initImp();
+                activeGame = 'imp'; updatePlayerInputs('imp'); initImp(); showRules('imp');
             } else if (gameId === 'first-to-hit') {
                 document.getElementById('first-to-hit-view').classList.add('active-view');
-                activeGame = 'fth'; updatePlayerInputs('fth'); initFth();
+                activeGame = 'fth'; updatePlayerInputs('fth'); initFth(); showRules('fth');
             } else if (gameId === 'marathon') {
                 document.getElementById('marathon-view').classList.add('active-view');
-                activeGame = 'mar'; initMarathon();
+                activeGame = 'mar'; initMarathon(); showRules('mar');
             }
         }
 
-        function backToMenu() {
+        function backToMenu(isFromHash = false) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
             const menuView = document.getElementById('menu-view');
             menuView.classList.add('active-view');
@@ -564,9 +594,11 @@
             document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
             activeGame = null;
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off();
+            if (isMusicEnabled) bgm.play().catch(e => {}); 
             
-            if (isMusicEnabled) {
-                bgm.play().catch(e => {}); // Zapne zpět hudbu v menu
+            // Vyčistíme URL, aby tam nebyl křížek navíc
+            if (!isFromHash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
             }
         }
 
@@ -577,10 +609,10 @@
             document.querySelectorAll('.fullscreen-overlay').forEach(o => o.style.display = 'none');
             activeGame = null;
             document.getElementById('ranking-section').scrollIntoView({ behavior: 'smooth' });
+            if (isMusicEnabled) bgm.play().catch(e => {}); 
             
-            if (isMusicEnabled) {
-                bgm.play().catch(e => {}); // Zapne hudbu i při skoku na žebříček
-            }
+            // Stejné vyčištění URL jako u návratu do menu
+            history.pushState("", document.title, window.location.pathname + window.location.search);
         }
 
         function updatePlayerInputs(mode) {
@@ -626,7 +658,7 @@
             const modal = document.getElementById('rules-modal');
             const text = document.getElementById('rules-text');
             if(mode === 'htt') text.innerHTML = `Stop the timer exactly at the given <strong>TARGET TIME</strong> (up to 15s).<br>The timer will be hidden. Guess the moment blind!<br>The player with the smallest difference wins.`;
-            else if (mode === 'srv') text.innerHTML = `<strong>SURVIVAL MODE (MULTIPLAYER)</strong><br>Create a room or join a friend's room. Random target times up to 15s. The player with the worst deviation is <strong>ELIMINATED</strong>.`;
+            else if (mode === 'srv') text.innerHTML = `<strong>SURVIVAL MODE</strong><br>Play online with friends or locally on one device. Random target times up to 15s. The player with the worst deviation is <strong>ELIMINATED</strong>.`;
             else if (mode === 'imp') text.innerHTML = `<strong>IMPOSTOR MODE</strong><br>One player is randomly chosen as the Impostor. Target time up to 15s!<br>After everyone plays, you must <strong>VOTE</strong> to find the Impostor.`;
             else if (mode === 'fth') text.innerHTML = `<strong>FIRST TO HIT</strong><br>Keep taking turns until someone hits the Target Time (up to 15s) <strong>EXACTLY</strong> (0.00s difference). First to do it wins!`;
             else if (mode === 'mar') text.innerHTML = `<strong>GLOBAL MARATHON</strong><br>Play 10 consecutive rounds with random target times (up to 15s).<br>Your total error is <strong>sent to the global ranking</strong>. Compete with players worldwide!`;
@@ -673,10 +705,42 @@
         }
 
         // ==========================================
-        // 2. SURVIVAL MODE (MULTIPLAYER)
+        // 2. SURVIVAL MODE (MULTIPLAYER ONLINE + LOCAL)
         // ==========================================
+        let srvPlayMode = 'online'; 
         let srvRoomId = null, srvMyName = "", srvIsHost = false, srvGameStateLocal = 'idle', srvStartLocal = 0, srvRoomData = null;
+        
+        let srvLocalActivePlayers = [], srvLocalQueue = [], srvLocalRound = 1, srvLocalTieBreaker = false;
+        let srvLocalTargetMs = 0, srvLocalResults = {}, srvLocalState = 'setup', srvLocalEliminatedLast = "", srvLocalWinner = "";
+
+        function srvSetMode(mode) {
+            srvPlayMode = mode;
+            if (mode === 'online') {
+                document.getElementById('srv-online-setup').style.display = 'block';
+                document.getElementById('srv-local-setup').style.display = 'none';
+                document.getElementById('srv-mode-online-btn').style.backgroundColor = '#00aa00';
+                document.getElementById('srv-mode-online-btn').style.color = 'black';
+                document.getElementById('srv-mode-local-btn').style.backgroundColor = '#333';
+                document.getElementById('srv-mode-local-btn').style.color = 'white';
+                initSrvOnline();
+            } else {
+                document.getElementById('srv-online-setup').style.display = 'none';
+                document.getElementById('srv-local-setup').style.display = 'block';
+                document.getElementById('srv-mode-online-btn').style.backgroundColor = '#333';
+                document.getElementById('srv-mode-online-btn').style.color = 'white';
+                document.getElementById('srv-mode-local-btn').style.backgroundColor = '#00aa00';
+                document.getElementById('srv-mode-local-btn').style.color = 'black';
+                updatePlayerInputs('srv');
+                initSrvLocal();
+            }
+        }
+
         function initSrv() {
+            srvSetMode('online'); // Výchozí mód
+        }
+
+        function initSrvOnline() {
+            document.getElementById('srv-subtitle').textContent = 'ONLINE MULTIPLAYER';
             document.getElementById('srv-online-players-list').innerHTML = '';
             document.getElementById('srv-display-room').textContent = '---';
             document.getElementById('srv-display-room').style.color = '#ff0000';
@@ -684,13 +748,29 @@
             document.getElementById('srv-timer-display').textContent = '00:00';
             document.getElementById('srv-timer-display').classList.remove('hide-timer');
             const btn = document.getElementById('srv-action-btn');
-            btn.textContent = 'CREATE OR JOIN ROOM'; btn.classList.remove('stop-mode');
+            btn.textContent = 'CREATE OR JOIN ROOM'; btn.style.backgroundColor = '#00aa00'; btn.classList.remove('stop-mode');
             document.querySelector('#survival-view .spacebar-hint').textContent = 'WAITING FOR PLAYERS...';
             srvRoomId = null; srvGameStateLocal = 'idle';
             if (db && srvRoomId) db.ref('rooms/' + srvRoomId).off(); 
         }
+
+        function initSrvLocal() {
+            document.getElementById('srv-subtitle').textContent = 'LOCAL MULTIPLAYER';
+            document.getElementById('srv-local-results-container').innerHTML = '';
+            document.getElementById('srv-result-message').textContent = '';
+            document.getElementById('srv-target-display').textContent = 'TARGET TIME: 0.00';
+            document.getElementById('srv-timer-display').textContent = '00:00';
+            document.getElementById('srv-timer-display').classList.remove('hide-timer');
+            const btn = document.getElementById('srv-action-btn');
+            btn.textContent = 'SETUP GAME FIRST'; btn.style.backgroundColor = '#555'; btn.classList.remove('stop-mode');
+            document.querySelector('#survival-view .spacebar-hint').textContent = 'SETUP PLAYERS ON THE RIGHT';
+            srvLocalState = 'setup';
+        }
+
+        // --- SURVIVAL ONLINE LOGIC ---
         function srvCreateRoom() {
             srvMyName = document.getElementById('srv-my-name').value || "Host";
+            if (containsBadWords(srvMyName)) return alert("Please choose a more polite name. 😊");
             srvRoomId = Math.random().toString(36).substring(2, 6).toUpperCase();
             srvIsHost = true;
             db.ref('rooms/' + srvRoomId).set({ state: 'lobby', host: srvMyName, players: { [srvMyName]: true }, round: 1 });
@@ -700,6 +780,7 @@
         }
         function srvJoinRoom() {
             srvMyName = document.getElementById('srv-my-name').value || "Guest";
+            if (containsBadWords(srvMyName)) return alert("Please choose a more polite name. 😊");
             const code = document.getElementById('srv-room-code-input').value.toUpperCase();
             if (!code) return alert("Enter a room code!");
             db.ref('rooms/' + code).once('value').then(snapshot => {
@@ -720,7 +801,7 @@
             });
         }
         function srvUpdateUI() {
-            if (!srvRoomData) return;
+            if (!srvRoomData || srvPlayMode === 'local') return;
             const playersContainer = document.getElementById('srv-online-players-list');
             if (playersContainer) {
                 playersContainer.innerHTML = '';
@@ -824,23 +905,155 @@
                 }
             }
         }
+
+        // --- SURVIVAL LOCAL LOGIC ---
+        function srvStartLocalGame() {
+            const inputs = document.getElementsByClassName('srv-player-name');
+            srvLocalActivePlayers = [];
+            for(let i=0; i<inputs.length; i++) {
+                let pName = inputs[i].value.trim() || `Player${i+1}`;
+                srvLocalActivePlayers.push(pName);
+            }
+            srvLocalActivePlayers = [...new Set(srvLocalActivePlayers)]; // Zajištění unikátních jmen
+            if (srvLocalActivePlayers.length < 2) return alert("Need at least 2 unique players!");
+
+            srvLocalRound = 1;
+            srvLocalWinner = "";
+            srvLocalStartRound(srvLocalActivePlayers, false);
+        }
+        function srvLocalStartRound(playersToPlay, isTie) {
+            srvLocalQueue = [...playersToPlay];
+            srvLocalTargetMs = isTie ? srvLocalTargetMs : (Math.floor(Math.random() * 14000) + 1000);
+            srvLocalResults = {};
+            srvLocalTieBreaker = isTie;
+            srvLocalSetupNextTurn();
+            srvUpdateLocalUI();
+        }
+        function srvLocalSetupNextTurn() {
+            srvLocalState = 'waiting';
+            let currentPlayer = srvLocalQueue[0];
+            document.getElementById('srv-subtitle').textContent = srvLocalTieBreaker ? `TIE-BREAKER - ${currentPlayer.toUpperCase()}'S TURN` : `ROUND ${srvLocalRound} - ${currentPlayer.toUpperCase()}'S TURN`;
+            document.getElementById('srv-target-display').textContent = `TARGET TIME: ${(srvLocalTargetMs / 1000).toFixed(2)}`;
+            document.getElementById('srv-timer-display').textContent = '00:00';
+            document.getElementById('srv-result-message').textContent = '';
+            
+            const btn = document.getElementById('srv-action-btn');
+            btn.textContent = `START (${currentPlayer})`;
+            btn.style.backgroundColor = '#00aa00';
+            btn.classList.remove('stop-mode');
+            document.querySelector('#survival-view .spacebar-hint').textContent = "YOUR TURN! PRESS SPACEBAR";
+        }
+        function srvLocalHandleAction() {
+            if (srvLocalState === 'setup') return alert("Click 'START GAME' in the right panel first!");
+            if (srvLocalState === 'waiting') {
+                srvLocalState = 'running'; srvLocalStart = Date.now();
+                document.getElementById('srv-timer-display').classList.add('hide-timer');
+                const btn = document.getElementById('srv-action-btn'); btn.textContent = 'STOP'; btn.style.backgroundColor = '#ff0000';
+            } else if (srvLocalState === 'running') {
+                const elapsedMs = Date.now() - srvLocalStart; srvLocalState = 'finished';
+                document.getElementById('srv-timer-display').classList.remove('hide-timer');
+                document.getElementById('srv-timer-display').textContent = (elapsedMs / 1000).toFixed(2);
+                const diffMs = elapsedMs - srvLocalTargetMs;
+                const diffSec = (diffMs / 1000).toFixed(2);
+                let sign = diffMs > 0 ? '+' : '';
+                document.getElementById('srv-result-message').textContent = `DIFFERENCE: ${sign}${diffSec}s`;
+
+                let currentPlayer = srvLocalQueue[0];
+                srvLocalResults[currentPlayer] = { diffMs: diffMs, absDiff: Math.abs(diffMs), displayDiff: `${sign}${diffSec}` };
+                srvUpdateLocalUI();
+
+                const btn = document.getElementById('srv-action-btn');
+                if (srvLocalQueue.length > 1) {
+                    btn.textContent = 'NEXT PLAYER'; btn.style.backgroundColor = '#00aa00';
+                } else {
+                    btn.textContent = 'EVALUATE ROUND'; btn.style.backgroundColor = '#ff0000';
+                }
+            } else if (srvLocalState === 'finished') {
+                srvLocalQueue.shift();
+                if (srvLocalQueue.length > 0) {
+                    srvLocalSetupNextTurn();
+                } else {
+                    srvLocalEvaluateRound();
+                }
+            }
+        }
+        function srvUpdateLocalUI() {
+            const resContainer = document.getElementById('srv-local-results-container');
+            if (!resContainer) return;
+            let resHtml = '';
+            Object.keys(srvLocalResults).forEach((pName) => {
+                let res = srvLocalResults[pName];
+                let color = res.diffMs > 0 ? '#ff5555' : '#55ff55';
+                resHtml += `<div><span>${pName}</span><span style="color:${color}">${res.displayDiff}</span></div>`;
+            });
+            resContainer.innerHTML = resHtml;
+        }
+        function srvLocalEvaluateRound() {
+            srvLocalState = 'evaluating';
+            let resultArr = Object.keys(srvLocalResults).map(name => ({ name, ...srvLocalResults[name] }));
+            let maxDiff = -1;
+            resultArr.forEach(r => { if (r.absDiff > maxDiff) maxDiff = r.absDiff; });
+            let worstPlayers = resultArr.filter(r => r.absDiff === maxDiff).map(r => r.name);
+
+            if (worstPlayers.length > 1) {
+                srvLocalTieBreaker = true;
+                srvLocalQueue = worstPlayers;
+                srvShowOverlay(`TIE-BREAKER!`, `${worstPlayers.join(' & ')}`, false);
+            } else {
+                srvLocalTieBreaker = false;
+                srvLocalEliminatedLast = worstPlayers[0];
+                srvLocalActivePlayers = srvLocalActivePlayers.filter(p => p !== srvLocalEliminatedLast);
+
+                if (srvLocalActivePlayers.length === 1) {
+                    srvLocalWinner = srvLocalActivePlayers[0];
+                    srvShowOverlay(`${srvLocalWinner.toUpperCase()} WINS!`, `SURVIVOR!`, true);
+                    srvLocalState = 'ended';
+                } else {
+                    srvLocalRound++;
+                    srvShowOverlay(`${srvLocalEliminatedLast.toUpperCase()}`, `ELIMINATED!`, false);
+                }
+            }
+        }
+
+        // --- SPOLEČNÉ OVERLAY ---
         function srvShowOverlay(mainText, subText, isWinner) {
             const overlay = document.getElementById('srv-elimination-overlay');
             document.getElementById('srv-elimination-text').innerHTML = `${mainText}<br>${subText}`;
             const btn = document.getElementById('srv-continue-btn'); overlay.style.display = 'flex';
-            if(isWinner) { overlay.classList.add('winner'); btn.textContent = srvIsHost ? 'RESTART GAME' : 'WAITING FOR HOST'; btn.style.backgroundColor = srvIsHost ? '#00aa00' : '#555'; }
-            else { overlay.classList.remove('winner'); btn.textContent = srvIsHost ? 'START NEXT PHASE' : 'WAITING FOR HOST'; btn.style.backgroundColor = srvIsHost ? '#ff0000' : '#555'; }
-            btn.style.color = (srvIsHost || isWinner) ? 'black' : 'white';
+            
+            let canControl = (srvPlayMode === 'local') || srvIsHost;
+
+            if(isWinner) { 
+                overlay.classList.add('winner'); 
+                btn.textContent = canControl ? 'PLAY AGAIN' : 'WAITING FOR HOST'; 
+                btn.style.backgroundColor = canControl ? '#00aa00' : '#555'; 
+            } else { 
+                overlay.classList.remove('winner'); 
+                btn.textContent = canControl ? 'START NEXT PHASE' : 'WAITING FOR HOST'; 
+                btn.style.backgroundColor = canControl ? '#ff0000' : '#555'; 
+            }
+            btn.style.color = (canControl || isWinner) ? 'black' : 'white';
         }
         function srvDismissOverlay() {
-            if (!srvIsHost) return alert("Only the HOST can continue the game!");
-            if (srvRoomData.winner) {
-                db.ref('rooms/' + srvRoomId).once('value').then(snapshot => {
-                    let data = snapshot.val();
-                    db.ref('rooms/' + srvRoomId).update({ state: 'lobby', players: data.allPlayers || data.players, round: 1, winner: null, tieBreaker: false, results: null });
-                });
-            } else if (srvRoomData.tieBreaker) { srvHostStartRound(srvRoomData.queue, true); }
-            else { srvHostStartRound(Object.keys(srvRoomData.players || {}), false); }
+            if (srvPlayMode === 'local') {
+                document.getElementById('srv-elimination-overlay').style.display = 'none';
+                if (srvLocalState === 'ended') {
+                    initSrvLocal();
+                } else if (srvLocalTieBreaker) {
+                    srvLocalStartRound(srvLocalQueue, true);
+                } else {
+                    srvLocalStartRound(srvLocalActivePlayers, false);
+                }
+            } else {
+                if (!srvIsHost) return alert("Only the HOST can continue the game!");
+                if (srvRoomData.winner) {
+                    db.ref('rooms/' + srvRoomId).once('value').then(snapshot => {
+                        let data = snapshot.val();
+                        db.ref('rooms/' + srvRoomId).update({ state: 'lobby', players: data.allPlayers || data.players, round: 1, winner: null, tieBreaker: false, results: null });
+                    });
+                } else if (srvRoomData.tieBreaker) { srvHostStartRound(srvRoomData.queue, true); }
+                else { srvHostStartRound(Object.keys(srvRoomData.players || {}), false); }
+            }
         }
 
         // ==========================================
@@ -1036,6 +1249,8 @@
                     marRound++; marNewTarget(); marResetUI();
                 } else {
                     const pName = document.getElementById('mar-player-name').value || "Player";
+                    if (containsBadWords(pName)) return alert("Please choose a more polite name. 😊");
+                    
                     let absDiff = Math.abs(marCumulativeDiffMs);
                     let totalSec = (absDiff / 1000).toFixed(2);
                     let totalSign = marCumulativeDiffMs > 0 ? '+' : (marCumulativeDiffMs < 0 ? '-' : '');
@@ -1087,12 +1302,41 @@
                 event.preventDefault(); 
                 
                 if (activeGame === 'htt') httHandleAction();
-                else if (activeGame === 'srv') { if (srvGameState === 'message') srvDismissOverlay(); else srvHandleAction(); }
+                else if (activeGame === 'srv') { 
+                    if (document.getElementById('srv-elimination-overlay').style.display === 'flex') {
+                        srvDismissOverlay();
+                    } else {
+                        srvPlayMode === 'online' ? srvHandleAction() : srvLocalHandleAction();
+                    }
+                }
                 else if (activeGame === 'imp') { if (impGameState === 'revealing' || impGameState === 'voting' || impGameState === 'result') return; impHandleAction(); }
                 else if (activeGame === 'fth') { if (fthGameState === 'message') initFth(); else fthHandleAction(); }
                 else if (activeGame === 'mar') { if (marGameState === 'ended') initMarathon(); else marHandleAction(); }
             }
         });
+
+        // ==========================================
+        // ROUTING (ZPRACOVÁNÍ URL ODKAZŮ)
+        // ==========================================
+        function handleHashChange() {
+            // Získáme slovo za křížkem (bez křížku)
+            const hash = window.location.hash.substring(1);
+            const validGames = ['hit-the-time', 'survival', 'impostor', 'first-to-hit', 'marathon'];
+            
+            if (validGames.includes(hash)) {
+                // Zavoláme startGame a přidáme parametr 'true', aby se už URL znova nepřepisovala
+                startGame(hash, true);
+            } else {
+                // Pokud hash neznáme nebo tam žádný není, vrátíme se do menu
+                backToMenu(true);
+            }
+        }
+
+        // Zkontrolujeme URL hned při prvním načtení stránky
+        window.addEventListener('load', handleHashChange);
+        
+        // Sledujeme změny URL, například při kliknutí na tlačítka Zpět/Vpřed v prohlížeči
+        window.addEventListener('hashchange', handleHashChange);
     </script>
 </body>
 </html>
